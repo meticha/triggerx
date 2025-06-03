@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Permissions for scheduling exact alarms -->
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <!-- Required for Foreground Service on Android P (API 28) and above if AlarmReceiver starts one -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <!-- For showing notifications, good practice with alarms -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- For displaying an Activity over other apps/lock screen -->
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <!-- To wake the device up -->
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+
+    <application>
+        <activity
+            android:name="com.meticha.triggerx.TriggerActivity"
+            android:exported="false"
+            android:launchMode="singleTask"
+            android:showWhenLocked="true"
+            android:theme="@style/Theme.AppCompat.DayNight.NoActionBar"
+            android:turnScreenOn="true" />
+
+        <receiver
+            android:name="com.meticha.triggerx.receivers.TriggerXAlarmReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.meticha.triggerx.ALARM_ACTION" />
+            </intent-filter>
+        </receiver>
+
+
+    </application>
+
+</manifest>

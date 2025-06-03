@@ -18,7 +18,8 @@ dependencyResolutionManagement {
         mavenCentral()
     }
 }
+enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
-rootProject.name = "TriggerX Example"
+rootProject.name = "TriggerX-Example"
 include(":app")
- 
+include(":triggerx")
