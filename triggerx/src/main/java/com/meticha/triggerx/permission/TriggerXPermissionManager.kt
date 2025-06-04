@@ -1,8 +1,12 @@
 package com.meticha.triggerx.permission
 
+import android.annotation.SuppressLint
 import android.app.AlarmManager
+import android.app.AppOpsManager
 import android.content.Context
+import android.content.Context.APP_OPS_SERVICE
 import android.content.Intent
+import android.os.Binder
 import android.os.Build
 import android.provider.Settings
 import androidx.activity.compose.ManagedActivityResultLauncher
@@ -13,6 +17,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.core.net.toUri
 import java.lang.ref.WeakReference
+import java.lang.reflect.Method
 
 
 object AlarmPermissionManager {
@@ -32,7 +37,26 @@ object AlarmPermissionManager {
         val powerManager =
             context.getSystemService(Context.POWER_SERVICE) as android.os.PowerManager
         val packageName = context.packageName
-        return powerManager?.isIgnoringBatteryOptimizations(packageName) ?: false
+        return powerManager.isIgnoringBatteryOptimizations(packageName)
+    }
+
+    @SuppressLint("DiscouragedPrivateApi")
+    // TODO("Need to check in future")
+    fun isShowOnLockScreenPermissionEnable(context: Context): Boolean {
+        return try {
+            val manager = context.getSystemService(APP_OPS_SERVICE) as AppOpsManager
+            val method: Method = AppOpsManager::class.java.getDeclaredMethod(
+                "checkOpNoThrow",
+                Int::class.javaPrimitiveType,
+                Int::class.javaPrimitiveType,
+                String::class.java
+            )
+            val result =
+                method.invoke(manager, 10020, Binder.getCallingUid(), context.packageName) as Int
+            AppOpsManager.MODE_ALLOWED == result
+        } catch (_: Exception) {
+            false
+        }
     }
 
     fun isGranted(context: Context, permission: PermissionType): Boolean {
@@ -40,6 +64,7 @@ object AlarmPermissionManager {
             PermissionType.ALARM -> hasExactAlarmPermission(context)
             PermissionType.OVERLAY -> hasOverlayPermission(context)
             PermissionType.BATTERY_OPTIMIZATION -> hasBatteryOptimizationPermission(context)
+            PermissionType.LOCK_SCREEN -> isShowOnLockScreenPermissionEnable(context)
         }
     }
 
@@ -62,6 +87,16 @@ object AlarmPermissionManager {
                     data = "package:${context.packageName}".toUri()
                 }
             }
+
+            PermissionType.LOCK_SCREEN -> {
+                return Intent("miui.intent.action.APP_PERM_EDITOR").apply {
+                    setClassName(
+                    "com.miui.securitycenter",
+                    "com.miui.permcenter.permissions.PermissionsEditorActivity"
+                )
+                    putExtra("extra_pkgname", context.packageName)
+                }
+            }
         }
 
     }
@@ -69,7 +104,7 @@ object AlarmPermissionManager {
 }
 
 
-enum class PermissionType { ALARM, OVERLAY, BATTERY_OPTIMIZATION }
+enum class PermissionType { ALARM, OVERLAY, BATTERY_OPTIMIZATION, LOCK_SCREEN }
 
 /**
  * Manages the state of permission requests and their UI flows
