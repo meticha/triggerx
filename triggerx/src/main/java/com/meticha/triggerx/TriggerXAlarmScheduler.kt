@@ -5,18 +5,16 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Build
-import android.util.Log
 import androidx.core.content.getSystemService
+import com.meticha.triggerx.logger.LoggerConfig
 import com.meticha.triggerx.receivers.TriggerXAlarmReceiver
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlin.jvm.java
 
 @Singleton
 class TriggerXAlarmScheduler @Inject constructor() {
     companion object {
         const val ALARM_REQUEST_CODE = 1001
-        private const val TAG = "AppAlarmManager"
     }
 
     fun scheduleAlarm(context: Context, triggerAtMillis: Long): Boolean {
@@ -24,7 +22,7 @@ class TriggerXAlarmScheduler @Inject constructor() {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             if (!alarmManager.canScheduleExactAlarms()) {
-                Log.e(TAG, "Cannot schedule exact alarms. Permission not granted.")
+                LoggerConfig.logger.e("Cannot schedule exact alarms. Permission not granted.")
                 // Optionally, redirect to settings or notify user.
                 // For now, returning false as the HomeScreen should handle permission request.
                 return false
@@ -49,13 +47,16 @@ class TriggerXAlarmScheduler @Inject constructor() {
                 triggerAtMillis,
                 pendingIntent
             )
-            Log.i(TAG, "Alarm scheduled for $triggerAtMillis with action: ${intent.action}")
+            LoggerConfig.logger.i("Alarm scheduled for $triggerAtMillis with action: ${intent.action}")
             return true
         } catch (se: SecurityException) {
-            Log.e(TAG, "SecurityException while scheduling alarm. Check permissions.", se)
+            LoggerConfig.logger.e(
+                "SecurityException while scheduling alarm. Check permissions.",
+                se
+            )
             return false
         } catch (e: Exception) {
-            Log.e(TAG, "Exception while scheduling alarm", e)
+            LoggerConfig.logger.e("Exception while scheduling alarm", e)
             return false
         }
     }
@@ -75,9 +76,9 @@ class TriggerXAlarmScheduler @Inject constructor() {
         if (pendingIntent != null) {
             alarmManager.cancel(pendingIntent)
             pendingIntent.cancel()
-            Log.i(TAG, "Alarm cancelled for action: ${intent.action}")
+            LoggerConfig.logger.i("Alarm cancelled for action: ${intent.action}")
         } else {
-            Log.i(TAG, "Alarm not found to cancel for action: ${intent.action}")
+            LoggerConfig.logger.i("Alarm not found to cancel for action: ${intent.action}")
         }
     }
 }

@@ -15,6 +15,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import com.meticha.triggerx.logger.LoggerConfig
 import com.meticha.triggerx.permission.AlarmPermissionManager.isGranted
 import java.lang.ref.WeakReference
 
@@ -70,7 +71,7 @@ fun rememberAppPermissionState(): PermissionState {
         when {
             permissionState.showRationalePopUp -> {
                 ShowPopup(
-                    message = "Bhai api do have permission",
+                    message = "Permissions are required to proceed further",
                     onConfirm = {
                         permissionState.showRationalePopUp = false
                         permissionState.requestPermission()
@@ -92,7 +93,6 @@ fun rememberAppPermissionState(): PermissionState {
  */
 private fun handlePermissionDenial(permissionState: PermissionState) {
     permissionState.showRationalePopUp = true
-//    permissionState.showSettingsPopUp = true
 }
 
 
@@ -103,7 +103,7 @@ fun PermissionLifeCycleCheckEffect(
 ) {
 
     val observer = LifecycleEventObserver { _, event ->
-        Log.e("COMPOSE PERMISSION", "Event: $event")
+        LoggerConfig.logger.d("Event: $event")
         if (event == lifecycleEvent) {
             if (permissionState.resumedFromSettings) {
                 permissionState.requestPermission()
@@ -145,7 +145,7 @@ fun ShowPopup(
             Button(onClick = {
                 onConfirm()
             }) {
-                Text(text = "OK")
+                Text(text = "Grant")
             }
         }
     )

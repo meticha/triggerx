@@ -5,17 +5,13 @@ import android.content.Context
 import android.content.Intent
 import android.os.IBinder
 import android.os.PowerManager
-import android.util.Log
 import com.meticha.triggerx.TriggerActivity
+import com.meticha.triggerx.logger.LoggerConfig
 import com.meticha.triggerx.receivers.TriggerXAlarmReceiver.Companion.ALARM_ACTION
 
 class TriggerXForegroundService : Service() {
 
     override fun onBind(p0: Intent?): IBinder? = null
-
-    companion object {
-        private const val TAG = "TriggerX Foreground Service"
-    }
 
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -28,7 +24,7 @@ class TriggerXForegroundService : Service() {
         // Acquire with a timeout, e.g., 1 minute.
         // The wakelock will be released in the finally block regardless of timeout.
         wakeLock.acquire(1 * 60 * 1000L /*1 minute*/)
-        Log.d(TAG, "WakeLock acquired")
+        LoggerConfig.logger.d("WakeLock acquired")
 
         try {
             if (intent?.action == ALARM_ACTION) {
@@ -36,28 +32,28 @@ class TriggerXForegroundService : Service() {
                     addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
                 }
                 startActivity(activityIntent)
-                Log.d(TAG, "TriggerActivity started")
+                LoggerConfig.logger.d("TriggerActivity started")
                 stopSelf()
-                Log.d(TAG, "stopSelf() called")
+                LoggerConfig.logger.d("stopSelf() called")
             } else {
-                Log.w(TAG, "Received intent with unknown or missing action: ${intent?.action}")
+                LoggerConfig.logger.w("Received intent with unknown or missing action: ${intent?.action}")
                 // If the service is started with an unknown action,
                 // it should probably stop itself too.
                 stopSelf()
-                Log.d(TAG, "stopSelf() called due to unknown action")
+                LoggerConfig.logger.d("stopSelf() called due to unknown action")
             }
         } catch (e: Exception) {
-            Log.e(TAG, "Error processing alarm", e)
+            LoggerConfig.logger.e("Error processing alarm", e)
             // Even if there's an error, try to stop the service.
             // The finally block will still run.
             stopSelf()
-            Log.d(TAG, "stopSelf() called after exception")
+            LoggerConfig.logger.d("stopSelf() called after exception")
         } finally {
             if (wakeLock.isHeld) {
                 wakeLock.release()
-                Log.d(TAG, "WakeLock released")
+                LoggerConfig.logger.d("WakeLock released")
             } else {
-                Log.d(TAG, "WakeLock was not held at finally block.")
+                LoggerConfig.logger.d("WakeLock was not held at finally block.")
             }
         }
         /**
@@ -69,6 +65,6 @@ class TriggerXForegroundService : Service() {
 
     override fun onDestroy() {
         super.onDestroy()
-        Log.d(TAG, "Service destroyed")
+        LoggerConfig.logger.d("Service destroyed")
     }
 }
