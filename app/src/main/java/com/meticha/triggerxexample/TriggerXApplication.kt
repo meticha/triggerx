@@ -1,7 +1,10 @@
 package com.meticha.triggerxexample
 
 import android.app.Application
+import android.os.Bundle
+import androidx.core.os.bundleOf
 import com.meticha.triggerx.dsl.TriggerX
+import com.meticha.triggerx.provider.TriggerXDataProvider
 import com.meticha.triggerxexample.alarm.AppAlarmActivity
 import dagger.hilt.android.HiltAndroidApp
 
@@ -16,6 +19,21 @@ class TriggerXApplication : Application() {
                 channelName = "My Awesome App Notifications"
             )
             activityClass = AppAlarmActivity::class.java
+            alarmDataProvider = object : TriggerXDataProvider {
+                override suspend fun provideData(alarmId: Int, alarmType: String): Bundle {
+                    return when (alarmType) {
+                        "MEETING" -> {
+                            bundleOf("title" to "Promotion", "location" to "Room")
+                        }
+
+                        "WORKOUT" -> {
+                            bundleOf("routine" to "running")
+                        }
+
+                        else -> bundleOf()
+                    }
+                }
+            }
         }
     }
 }

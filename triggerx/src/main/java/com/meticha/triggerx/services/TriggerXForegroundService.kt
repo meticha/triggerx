@@ -50,9 +50,18 @@ class TriggerXForegroundService : Service() {
 
         try {
             if (intent?.action == ALARM_ACTION) {
+                val alarmId = intent.getIntExtra("ALARM_ID", -1)
+                val alarmType = intent.getStringExtra("ALARM_TYPE") ?: ""
+                val bundle = runBlocking {
+                    TriggerX.config?.alarmDataProvider?.provideData(alarmId, alarmType)
+                }
+
                 val activityClass = runBlocking { resolveActivityClass(applicationContext) }
                 val activityIntent = Intent(this, activityClass).apply {
                     addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                    putExtra("ALARM_ID", alarmId)
+                    putExtra("ALARM_TYPE", alarmType)
+                    putExtra("ALARM_DATA", bundle)
                 }
                 startActivity(activityIntent)
                 LoggerConfig.logger.d("TriggerActivity started")

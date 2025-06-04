@@ -16,8 +16,13 @@ class TriggerXAlarmReceiver : BroadcastReceiver() {
         LoggerConfig.logger.d("Alarm received!")
 
         if (intent?.action == ALARM_ACTION) {
+            val alarmId = intent.getIntExtra("ALARM_ID", -1)
+            val alarmType = intent.getStringExtra("ALARM_TYPE") ?: ""
+
             val serviceIntent = Intent(context, TriggerXForegroundService::class.java).also {
                 it.action = ALARM_ACTION
+                it.putExtra("ALARM_ID", alarmId)
+                it.putExtra("ALARM_TYPE", alarmType)
             }
             context.startForegroundService(serviceIntent)
         } else {
