@@ -5,8 +5,6 @@
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
     <!-- Required for Foreground Service on Android P (API 28) and above if AlarmReceiver starts one -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-    <!-- For showing notifications, good practice with alarms -->
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <!-- For displaying an Activity over other apps/lock screen -->
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <!-- To wake the device up -->
@@ -29,6 +27,11 @@
                 <action android:name="com.meticha.triggerx.ALARM_ACTION" />
             </intent-filter>
         </receiver>
+
+        <service
+            android:name=".services.TriggerXForegroundService"
+            android:exported="false"
+            android:foregroundServiceType="shortService" />
 
 
     </application>

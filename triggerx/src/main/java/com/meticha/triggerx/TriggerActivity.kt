@@ -1,6 +1,8 @@
 package com.meticha.triggerx
 
+import android.os.Build
 import android.os.Bundle
+import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Box
@@ -17,14 +19,19 @@ class TriggerActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         // Flags to show activity over lock screen and turn screen on
-        setShowWhenLocked(true)
-        setTurnScreenOn(true)
-
-        // Optional: If you want to explicitly dismiss the keyguard
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-//            val keyguardManager = getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
-//            keyguardManager.requestDismissKeyguard(this, null)
-//        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
+            setShowWhenLocked(true)
+            setTurnScreenOn(true)
+        } else {
+            // These flags are older but necessary for API 26
+            @Suppress("DEPRECATION")
+            window.addFlags(
+                WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or
+                        WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON or
+                        WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON or
+                        WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD
+            )
+        }
 
         setContent {
             Box(

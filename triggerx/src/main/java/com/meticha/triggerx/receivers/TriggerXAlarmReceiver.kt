@@ -1,11 +1,13 @@
 package com.meticha.triggerx.receivers
 
+import android.R.attr.action
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.os.PowerManager
 import android.util.Log
 import com.meticha.triggerx.TriggerActivity
+import com.meticha.triggerx.services.TriggerXForegroundService
 import kotlin.jvm.java
 
 class TriggerXAlarmReceiver : BroadcastReceiver() {
@@ -18,29 +20,13 @@ class TriggerXAlarmReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent?) {
         Log.d(TAG, "Alarm received!")
 
-        // Acquire a wake lock to ensure the device doesn't sleep while processing the alarm
-        val powerManager = context.getSystemService(Context.POWER_SERVICE) as PowerManager
-        val wakeLock = powerManager.newWakeLock(
-            PowerManager.PARTIAL_WAKE_LOCK,
-            "triggerx::AlarmWakeLock"
-        )
-        wakeLock.acquire(10 * 60 * 1000L /*10 minutes - adjust as needed*/)
-
-        try {
-            if (intent?.action == ALARM_ACTION) {
-                Log.d(TAG, "Starting TriggerActivity")
-                val activityIntent = Intent(context, TriggerActivity::class.java).apply {
-                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
-                }
-                context.startActivity(activityIntent)
-            } else {
-                Log.w(TAG, "Received intent with unknown action: ${intent?.action}")
+        if (intent?.action == ALARM_ACTION) {
+            val serviceIntent = Intent(context, TriggerXForegroundService::class.java).also {
+                it.action = ALARM_ACTION
             }
-        } catch (e: Exception) {
-            Log.e(TAG, "Error processing alarm", e)
-        } finally {
-            wakeLock.release()
-            Log.d(TAG, "WakeLock released")
+            context.startForegroundService(serviceIntent)
+        } else {
+            Log.w(TAG, "Received intent with unknown action: ${intent?.action}")
         }
     }
 
