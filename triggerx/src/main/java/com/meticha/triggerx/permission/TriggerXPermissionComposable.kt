@@ -1,9 +1,8 @@
 package com.meticha.triggerx.permission
 
 import android.annotation.SuppressLint
-import android.app.Activity
+import android.os.Build
 import android.util.Log
-import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.material3.AlertDialog
@@ -13,7 +12,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
-import androidx.core.app.ActivityCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -24,11 +22,19 @@ import java.lang.ref.WeakReference
 @SuppressLint("ComposableNaming")
 @Composable
 fun rememberAppPermissionState(): PermissionState {
-    val permissions = listOf(
-        PermissionType.ALARM,
-        PermissionType.OVERLAY,
-        PermissionType.BATTERY_OPTIMIZATION
-    )
+
+    val permissions = buildList {
+        addAll(
+            listOf(
+                PermissionType.ALARM,
+                PermissionType.OVERLAY,
+                PermissionType.BATTERY_OPTIMIZATION
+            )
+        )
+        if (Build.MANUFACTURER.equals("Xiaomi", true)) {
+            add(PermissionType.LOCK_SCREEN)
+        }
+    }
 
     val context = LocalContext.current
 
@@ -53,7 +59,9 @@ fun rememberAppPermissionState(): PermissionState {
                 permissionState.next()
             }
 
-            else -> handlePermissionDenial(permissionState)
+            else                                                    -> handlePermissionDenial(
+                permissionState
+            )
         }
     }
 
@@ -91,7 +99,7 @@ private fun handlePermissionDenial(permissionState: PermissionState) {
 @Composable
 fun PermissionLifeCycleCheckEffect(
     permissionState: PermissionState,
-    lifecycleEvent: Lifecycle.Event = Lifecycle.Event.ON_RESUME
+    lifecycleEvent: Lifecycle.Event = Lifecycle.Event.ON_RESUME,
 ) {
 
     val observer = LifecycleEventObserver { _, event ->
@@ -116,7 +124,7 @@ fun PermissionLifeCycleCheckEffect(
 fun ShowPopup(
     message: String,
     onConfirm: () -> Unit,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
 ) {
     AlertDialog(
         onDismissRequest = { onDismiss() },
