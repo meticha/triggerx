@@ -59,7 +59,7 @@ fun rememberAppPermissionState(): PermissionState {
                 permissionState.next()
             }
 
-            else                                                    -> handlePermissionDenial(
+            else -> handlePermissionDenial(
                 permissionState
             )
         }
