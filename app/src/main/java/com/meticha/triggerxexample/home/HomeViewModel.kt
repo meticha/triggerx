@@ -9,13 +9,13 @@ import java.util.Calendar
 import javax.inject.Inject
 
 @HiltViewModel
-class HomeViewModel @Inject constructor(
-    private val appAlarmManager: TriggerXAlarmScheduler
-) : ViewModel() {
+class HomeViewModel @Inject constructor() : ViewModel() {
 
     companion object {
         private const val TAG = "HomeViewModel"
     }
+
+    private val appAlarmManager: TriggerXAlarmScheduler = TriggerXAlarmScheduler()
 
     fun scheduleOneMinuteAlarm(context: Context): Boolean {
         val triggerTime = Calendar.getInstance().apply {
@@ -26,7 +26,7 @@ class HomeViewModel @Inject constructor(
         return appAlarmManager.scheduleAlarm(context, triggerTime)
     }
 
-    fun cancelCurrentAlarm(context: Context) {
-        appAlarmManager.cancelAlarm(context)
+    fun cancelCurrentAlarm(context: Context, id: Int) {
+        appAlarmManager.cancelAlarm(context, id)
     }
 }

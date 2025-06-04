@@ -6,6 +6,7 @@ import android.app.AppOpsManager
 import android.content.Context
 import android.content.Context.APP_OPS_SERVICE
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Binder
 import android.os.Build
 import android.provider.Settings
@@ -15,6 +16,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import java.lang.ref.WeakReference
 import java.lang.reflect.Method
@@ -59,12 +61,24 @@ object AlarmPermissionManager {
         }
     }
 
+    fun isNotificationPermissionEnabled(context: Context): Boolean {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            ContextCompat.checkSelfPermission(
+                context,
+                android.Manifest.permission.POST_NOTIFICATIONS
+            ) == PackageManager.PERMISSION_GRANTED
+        } else {
+            true // Notifications don't need explicit permission pre-Android 13
+        }
+    }
+
     fun isGranted(context: Context, permission: PermissionType): Boolean {
         return when (permission) {
             PermissionType.ALARM -> hasExactAlarmPermission(context)
             PermissionType.OVERLAY -> hasOverlayPermission(context)
             PermissionType.BATTERY_OPTIMIZATION -> hasBatteryOptimizationPermission(context)
             PermissionType.LOCK_SCREEN -> isShowOnLockScreenPermissionEnable(context)
+            PermissionType.NOTIFICATION -> isNotificationPermissionEnabled(context)
         }
     }
 
@@ -91,20 +105,28 @@ object AlarmPermissionManager {
             PermissionType.LOCK_SCREEN -> {
                 return Intent("miui.intent.action.APP_PERM_EDITOR").apply {
                     setClassName(
-                    "com.miui.securitycenter",
-                    "com.miui.permcenter.permissions.PermissionsEditorActivity"
-                )
+                        "com.miui.securitycenter",
+                        "com.miui.permcenter.permissions.PermissionsEditorActivity"
+                    )
                     putExtra("extra_pkgname", context.packageName)
                 }
             }
+
+            PermissionType.NOTIFICATION -> {
+                return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
+                        putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
+                    }
+                } else {
+                    Intent()
+                }
+            }
+
         }
-
     }
-
 }
 
-
-enum class PermissionType { ALARM, OVERLAY, BATTERY_OPTIMIZATION, LOCK_SCREEN }
+enum class PermissionType { ALARM, OVERLAY, BATTERY_OPTIMIZATION, LOCK_SCREEN, NOTIFICATION }
 
 /**
  * Manages the state of permission requests and their UI flows

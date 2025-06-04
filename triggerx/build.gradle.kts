@@ -52,6 +52,10 @@ dependencies {
     implementation(libs.hilt.navigation.compose)
     ksp(libs.hilt.compiler)
 
+    // datastore
+    implementation(libs.androidx.datastore.preferences)
+
+
     // compose dependencies
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.lifecycle.runtime.ktx)

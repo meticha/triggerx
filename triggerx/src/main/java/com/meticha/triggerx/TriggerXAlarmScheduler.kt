@@ -8,16 +8,13 @@ import android.os.Build
 import androidx.core.content.getSystemService
 import com.meticha.triggerx.logger.LoggerConfig
 import com.meticha.triggerx.receivers.TriggerXAlarmReceiver
-import javax.inject.Inject
-import javax.inject.Singleton
 
-@Singleton
-class TriggerXAlarmScheduler @Inject constructor() {
-    companion object {
-        const val ALARM_REQUEST_CODE = 1001
-    }
-
-    fun scheduleAlarm(context: Context, triggerAtMillis: Long): Boolean {
+class TriggerXAlarmScheduler {
+    fun scheduleAlarm(
+        context: Context,
+        triggerAtMillis: Long,
+        alarmId: Int = (System.currentTimeMillis() % Int.MAX_VALUE).toInt()
+    ): Boolean {
         val alarmManager = context.getSystemService<AlarmManager>()!!
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -33,10 +30,10 @@ class TriggerXAlarmScheduler @Inject constructor() {
             action = TriggerXAlarmReceiver.ALARM_ACTION
         }
         val pendingIntent = PendingIntent.getBroadcast(
-            context,
-            ALARM_REQUEST_CODE,
-            intent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            /* context = */ context,
+            /* requestCode = */ alarmId,
+            /* intent = */ intent,
+            /* flags = */ PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
         try {
@@ -47,7 +44,7 @@ class TriggerXAlarmScheduler @Inject constructor() {
                 triggerAtMillis,
                 pendingIntent
             )
-            LoggerConfig.logger.i("Alarm scheduled for $triggerAtMillis with action: ${intent.action}")
+            LoggerConfig.logger.i("Alarm [$alarmId] scheduled for $triggerAtMillis")
             return true
         } catch (se: SecurityException) {
             LoggerConfig.logger.e(
@@ -61,24 +58,33 @@ class TriggerXAlarmScheduler @Inject constructor() {
         }
     }
 
-    fun cancelAlarm(context: Context) {
-        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+    fun scheduleMultipleAlarms(
+        context: Context,
+        events: List<Pair<Int, Long>> // Pair<alarmId, triggerTime>
+    ): List<Boolean> {
+        return events.map { (id, time) ->
+            scheduleAlarm(context, time, id)
+        }
+    }
+
+    fun cancelAlarm(context: Context, alarmId: Int) {
         val intent = Intent(context, TriggerXAlarmReceiver::class.java).apply {
             action = TriggerXAlarmReceiver.ALARM_ACTION
         }
         val pendingIntent = PendingIntent.getBroadcast(
             context,
-            ALARM_REQUEST_CODE,
+            alarmId,
             intent,
             PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE
         )
 
         if (pendingIntent != null) {
+            val alarmManager = context.getSystemService(AlarmManager::class.java)
             alarmManager.cancel(pendingIntent)
             pendingIntent.cancel()
-            LoggerConfig.logger.i("Alarm cancelled for action: ${intent.action}")
+            LoggerConfig.logger.i("Alarm [$alarmId] cancelled.")
         } else {
-            LoggerConfig.logger.i("Alarm not found to cancel for action: ${intent.action}")
+            LoggerConfig.logger.i("Alarm [$alarmId] not found to cancel.")
         }
     }
 }
