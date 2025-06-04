@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+    <!-- Required for Foreground Service on Android P (API 28) and above if AlarmReceiver starts one -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- To wake the device up -->
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+
+    <application>
+        <activity
+            android:name="com.meticha.triggerx.DefaultTriggerActivity"
+            android:exported="false"
+            android:launchMode="singleTask"
+            android:showWhenLocked="true"
+            android:theme="@style/Theme.AppCompat.DayNight.NoActionBar"
+            android:turnScreenOn="true"
+            tools:targetApi="27" />
+
+        <receiver
+            android:name="com.meticha.triggerx.receivers.TriggerXAlarmReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.meticha.triggerx.ALARM_ACTION" />
+            </intent-filter>
+        </receiver>
+
+        <service
+            android:name=".services.TriggerXForegroundService"
+            android:exported="false"
+            android:foregroundServiceType="shortService" />
+    </application>
+
+</manifest>
