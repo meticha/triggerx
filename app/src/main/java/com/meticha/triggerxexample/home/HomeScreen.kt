@@ -43,7 +43,7 @@ fun HomeScreen(
                     }
                 }
             ) {
-                Text("Ane click karo have")
+                Text("Schedule Activity")
             }
         }
     }
