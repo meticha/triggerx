@@ -13,6 +13,7 @@ class TriggerXAlarmScheduler {
     fun scheduleAlarm(
         context: Context,
         triggerAtMillis: Long,
+        type: String,
         alarmId: Int = (System.currentTimeMillis() % Int.MAX_VALUE).toInt()
     ): Boolean {
         val alarmManager = context.getSystemService<AlarmManager>()!!
@@ -28,6 +29,8 @@ class TriggerXAlarmScheduler {
 
         val intent = Intent(context, TriggerXAlarmReceiver::class.java).apply {
             action = TriggerXAlarmReceiver.ALARM_ACTION
+            putExtra("ALARM_ID", alarmId)
+            putExtra("ALARM_TYPE", type)
         }
         val pendingIntent = PendingIntent.getBroadcast(
             /* context = */ context,
@@ -35,7 +38,6 @@ class TriggerXAlarmScheduler {
             /* intent = */ intent,
             /* flags = */ PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
-
         try {
             // Use setExactAndAllowWhileIdle for alarms that need to fire even in Doze mode.
             // For AlarmClock behavior (shows in status bar), use AlarmManager.AlarmClockInfo
@@ -58,12 +60,19 @@ class TriggerXAlarmScheduler {
         }
     }
 
+    fun scheduleAlarm(
+        context: Context,
+        triggerAtMillis: Long,
+        alarmId: Int = (System.currentTimeMillis() % Int.MAX_VALUE).toInt()
+    ) = scheduleAlarm(context, triggerAtMillis, "", alarmId)
+
+
     fun scheduleMultipleAlarms(
         context: Context,
         events: List<Pair<Int, Long>> // Pair<alarmId, triggerTime>
     ): List<Boolean> {
         return events.map { (id, time) ->
-            scheduleAlarm(context, time, id)
+            scheduleAlarm(context, time, "", id)
         }
     }
 

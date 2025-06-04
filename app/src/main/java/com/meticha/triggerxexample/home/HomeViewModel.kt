@@ -23,7 +23,8 @@ class HomeViewModel @Inject constructor() : ViewModel() {
         }.timeInMillis
 
         Log.i(TAG, "Attempting to schedule alarm for 1 minute from now ($triggerTime)")
-        return appAlarmManager.scheduleAlarm(context, triggerTime)
+        return appAlarmManager.scheduleAlarm(context, triggerTime, "MEETING", 1)
+
     }
 
     fun cancelCurrentAlarm(context: Context, id: Int) {
