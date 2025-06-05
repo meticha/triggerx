@@ -40,9 +40,13 @@ the system details.
 
 ---
 
-## 🛠️ Setup
-
 ### 📦 Installation
+
+Add the library inside your app level `build.gradle` file:
+
+```kts
+implementation("com.meticha:triggerx:0.0.3")
+```
 
 ## 🚀 Quick Start
 
