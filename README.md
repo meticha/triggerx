@@ -4,23 +4,18 @@
 
 > **Note:** TriggerX is currently in Alpha. APIs may change.
 
-<table>
-  <tr>
-    <td style="vertical-align: top; width: 60%;">
-      <p>
-        <strong>TriggerX</strong> is a modular, developer-friendly <strong>alarm execution</strong> library for Android.
-      </p>
-      <p>
-        It simplifies scheduling exact alarms and showing user-facing UIs at a specific time, even when
-        your app has been killed or without you managing foreground-service boilerplate, wake-locks, or
-        lock-screen flags.
-      </p>
-    </td>
-    <td style="vertical-align: top; text-align: right;">
-      <img src="triggerx_example.gif" alt="TriggerX Example" height="300">
-    </td>
-  </tr>
-</table>
+TriggerX is a modular, developer-friendly **alarm execution** library for Android.
+
+It simplifies scheduling exact alarms and showing user-facing UIs at a specific time, even when
+your app has been killed or without you managing foreground-service boilerplate, wake-locks, or
+lock-screen flags.
+
+
+## Example
+<p>
+  <img src="triggerx_example.gif" alt="TriggerX Example" height="500">
+</p>
+
 ---
 
 ## 📌 What does TriggerX do?
