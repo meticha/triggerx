@@ -10,7 +10,9 @@ It simplifies scheduling exact alarms and showing user-facing UIs at a specific 
 your app has been killed or without you managing foreground-service boilerplate, wake-locks, or
 lock-screen flags.
 
-![triggerx_example.gif](triggerx_example.gif)
+<p align="right">
+  <img src="triggerx_example.gif" alt="TriggerX Example" height="300">
+</p>
 
 ---
 
