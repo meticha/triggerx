@@ -23,11 +23,7 @@ class TriggerXApplication : Application() {
                 override suspend fun provideData(alarmId: Int, alarmType: String): Bundle {
                     return when (alarmType) {
                         "MEETING" -> {
-                            bundleOf("title" to "Promotion", "location" to "Room")
-                        }
-
-                        "WORKOUT" -> {
-                            bundleOf("routine" to "running")
+                            bundleOf("title" to "TriggerX", "location" to "Compose")
                         }
 
                         else -> bundleOf()
