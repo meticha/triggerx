@@ -51,7 +51,11 @@ fun HomeScreen(
             ElevatedButton(
                 onClick = {
                     if (permissionState.allRequiredGranted()) {
-                        Toast.makeText(context, "Scheduled for 10 seconds", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(
+                            context,
+                            "Scheduled for 1 minute. Now you can close the App and chill",
+                            Toast.LENGTH_SHORT
+                        ).show()
                         viewModel.scheduleOneMinuteAlarm(
                             context
                         )
