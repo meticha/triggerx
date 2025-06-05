@@ -10,8 +10,8 @@ It simplifies scheduling exact alarms and showing user-facing UIs at a specific 
 your app has been killed or without you managing foreground-service boilerplate, wake-locks, or
 lock-screen flags.
 
-
 ## Example
+
 <p>
   <img src="triggerx_example.gif" alt="TriggerX Example" height="500">
 </p>
@@ -147,27 +147,52 @@ TriggerXAlarmScheduler().scheduleAlarm(
 ## 🧩 Create your Alarm UI
 
 ```kotlin
-class MyAlarmActivity : TriggerXAlarmActivity() {
+class AppAlarmActivity : TriggerXActivity() {
 
     @Composable
     override fun AlarmContent() {
-        val data = intent.getBundleExtra("ALARM_DATA")
-        val title = data?.getString("title") ?: "No Title"
-        val location = data?.getString("location") ?: "No Location"
-
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
+        val bundle = remember { intent?.getBundleExtra("ALARM_DATA") }
+        val title = bundle?.getString("title") ?: "empty title"
+        val location = bundle?.getString("location")
+        Box(
+            modifier = Modifier.fillMaxSize()
         ) {
-            Text(title, fontSize = 28.sp, fontWeight = FontWeight.Bold)
-            Text(location, fontSize = 18.sp)
-            Spacer(Modifier.height(32.dp))
-            Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                Button(onClick = ::finish) { Text("Dismiss") }
-                Button(onClick = { /* Snooze */ }) { Text("Snooze") }
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(
+                        color = Color.White,
+                        shape = RoundedCornerShape(32.dp)
+                    )
+                    .padding(32.dp),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Notifications,
+                    contentDescription = "Trigger Icon",
+                    tint = Color(0xFF111111),
+                    modifier = Modifier.size(80.dp)
+                )
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                Text(
+                    text = title,
+                    fontSize = 42.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF111111)
+                )
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                Text(
+                    text = location ?: "empty location",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = Color(0xFF333333),
+                    textAlign = TextAlign.Center
+                )
             }
         }
     }
@@ -359,14 +384,20 @@ TriggerXAlarmScheduler().cancelAlarm(this, alarmId = 1)
 
 ## 📄 License
 
-```xml
-Designed and developed by 2025 Meticha
+```
+Copyright 2025 Meticha
 
-    Licensed under the Apache License, Version 2.0 (the "License");you may not use this file except in compliance with the License.You may obtain a copy of the License at
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+   http://www.apache.org/licenses/LICENSE-2.0
 
-    Unless required by applicable law or agreed to in writing, softwaredistributed under the License is distributed on an "AS IS" BASIS,WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.See the License for the specific language governing permissions andlimitations under the License.
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
 ```
 
 If TriggerX saves you time, consider giving the repo a ⭐ on GitHub.
