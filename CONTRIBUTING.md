@@ -60,3 +60,6 @@ By contributing to TriggerX, you agree to abide by the [Contributor Covenant Cod
 If you get stuck or have any questions while contributing, don't hesitate to ask for help by opening an issue.
 
 Thank you again for your contribution!
+
+## Security Issues
+For security vulnerabilities, please email cavin@meticha.com instead of opening a public issue.
