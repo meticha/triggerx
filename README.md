@@ -46,6 +46,18 @@ the system details.
 
 ## 🚀 Quick Start
 
+### 0. Add these permission in your `AndroidManifest.xml` file:
+
+```xml
+<uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+
+    <!-- For displaying an Activity over other apps/lock screen -->
+<uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+
+    <!-- Permissions for scheduling exact alarms -->
+<uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+```
+
 ### 1. Initialize in your Application class
 
 ```kotlin
