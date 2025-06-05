@@ -4,7 +4,7 @@ First off, thank you for considering contributing to TriggerX! It's people like 
 
 ## Where do I go from here?
 
-If you've noticed a bug or have a feature request, [make one!](https://github.com/your-username/TriggerXExample/issues/new) It's generally best if you get confirmation of your bug or approval for your feature request this way before starting to code.
+If you've noticed a bug or have a feature request, [make one!](https://github.com/meticha/triggerx/issues/new) It's generally best if you get confirmation of your bug or approval for your feature request this way before starting to code.
 
 If you have a general question, feel free to ask on the project's issues page as well.
 
