@@ -105,7 +105,7 @@ internal class TriggerXForegroundService : Service() {
         startForeground(NOTIFICATION_ID, notification)
 
         // Acquire a wake lock to ensure the device doesn't sleep while processing the alarm
-        val powerManager = getSystemService(Context.POWER_SERVICE) as PowerManager
+        val powerManager = getSystemService(PowerManager::class.java)
         val wakeLock = powerManager.newWakeLock(
             PowerManager.PARTIAL_WAKE_LOCK,
             "triggerx::AlarmWakeLock"
