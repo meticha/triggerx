@@ -8,7 +8,7 @@ on:
 
 
 env:
-  VERSION_NAME: 0.0.1  # Update this value for each release
+  VERSION_NAME: 0.0.2  # Update this value for each release
 
 jobs:
   release:
