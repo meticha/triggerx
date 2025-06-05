@@ -2,8 +2,9 @@
 
 ![triggerx-banner.png](banner/triggerx-banner.png)
 
-TriggerX is a modular, developer-friendly **alarm execution** library for Android.  
-It simplifies scheduling exact alarms and showing user-facing UIs at a specific time — even when
+TriggerX is a modular, developer-friendly **alarm execution** library for Android.
+
+It simplifies scheduling exact alarms and showing user-facing UIs at a specific time, even when
 your app has been killed or without you managing foreground-service boilerplate, wake-locks, or
 lock-screen flags.
 
@@ -37,7 +38,7 @@ the system details.
 
 ## 🚀 Quick Start
 
-### 1. Initialise in your Application class
+### 1. Initialize in your Application class
 
 ```kotlin
 class MyApplication : Application() {
@@ -56,14 +57,20 @@ class MyApplication : Application() {
                 channelName = "Alarm Notifications"
             )
 
-            /* Provide up-to-date data right before the UI opens */
+            /* Optional: Provide up-to-date data right before the UI opens */
             alarmDataProvider = object : TriggerXDataProvider {
                 override suspend fun provideData(alarmId: Int, alarmType: String): Bundle {
-                    val meeting = meetingRepository.getMeeting(alarmId)
-                    return bundleOf(
-                        "title" to meeting?.title,
-                        "location" to meeting?.location
-                    )
+                    return when (alarmType) {
+                        "MEETING" -> {
+                            val meeting = meetingRepository.getMeeting(alarmId)
+                            return bundleOf(
+                                "title" to meeting?.title,
+                                "location" to meeting?.location
+                            )
+                        }
+
+                        else -> bundleOf()
+                    }
                 }
             }
         }
@@ -71,10 +78,53 @@ class MyApplication : Application() {
 }
 ```
 
-### 2. Schedule an alarm
+### 2. Ask for the permission
+
+The library provides a composable helper to request permissions so that you don't have to manage
+this manually. However, the library provides the functionality to request permissions manually if
+you want to follow that path
 
 ```kotlin
-val inFiveMinutes = System.currentTimeMillis() + 5 * 60_000
+@Composable
+fun HomeScreen(
+    viewModel: HomeViewModel = hiltViewModel()
+) {
+    val context = LocalContext.current
+    val permissionState = rememberAppPermissionState()
+
+
+    Scaffold { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .padding(16.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            ElevatedButton(
+                onClick = {
+                    if (permissionState.allRequiredGranted()) {
+                        viewModel.scheduleOneMinuteAlarm(context)
+                    } else {
+                        permissionState.requestPermission()
+                    }
+                }
+            ) {
+                Text("Schedule Activity")
+            }
+        }
+    }
+}
+```
+
+### 3. Schedule an alarm
+
+```kotlin
+val inFiveMinutes = Calendar.getInstance().apply {
+    add(Calendar.MINUTE, 5)
+}.timeInMillis
+
 
 TriggerXAlarmScheduler().scheduleAlarm(
     context = this,
@@ -206,6 +256,73 @@ class RoomProvider(private val dao: MeetingDao) : TriggerXDataProvider {
 }
 ```
 
+## 📁 TriggerX Configuration Example
+
+```kotlin
+class MyApplication : Application() {
+    override fun onCreate() {
+        super.onCreate()
+
+        TriggerX.init(this) {
+            notificationTitle = "Reminder"
+            notificationMessage = "You have a scheduled event"
+            notificationChannelName = "Event Alarms"
+            customLogger = object : TriggerXLogger {
+                override fun d(message: String) = Log.d("TriggerX", message)
+                override fun e(message: String, throwable: Throwable?) =
+                    Log.e("TriggerX", message, throwable)
+            }
+        }
+    }
+}
+```
+
+## 🔗 Retrofit or Network-Based Data Provider
+
+```kotlin
+class ApiProvider(private val api: AlarmApi) : TriggerXDataProvider {
+    override suspend fun provideData(alarmId: Int, alarmType: String): Bundle {
+        return try {
+            val response = api.getAlarmDetails(alarmId)
+            bundleOf("title" to response.title, "description" to response.description)
+        } catch (e: Exception) {
+            Bundle.EMPTY
+        }
+    }
+}
+```
+
+## 💾 In-Memory or Static Data Provider
+
+```kotlin
+class StaticProvider : TriggerXDataProvider {
+    override suspend fun provideData(alarmId: Int, alarmType: String): Bundle {
+        return when (alarmType) {
+            "WELCOME" -> bundleOf("title" to "Welcome!", "body" to "Thanks for installing our app.")
+            else -> Bundle.EMPTY
+        }
+    }
+}
+```
+
+## 🔁 Delegating to Multiple Providers
+
+```kotlin
+class MultiSourceProvider(
+    private val roomProvider: TriggerXDataProvider,
+    private val networkProvider: TriggerXDataProvider
+) : TriggerXDataProvider {
+
+    override suspend fun provideData(alarmId: Int, alarmType: String): Bundle {
+        return when (alarmType) {
+            "MEETING" -> roomProvider.provideData(alarmId, alarmType)
+            "NEWS" -> networkProvider.provideData(alarmId, alarmType)
+            else -> Bundle.EMPTY
+        }
+    }
+}
+```
+
 ## 💾 Persistence
 
 TriggerX stores minimal info (ID, type, activity class) in Preferences DataStore so alarms still
@@ -233,20 +350,15 @@ TriggerXAlarmScheduler().cancelAlarm(this, alarmId = 1)
 - Please include tests or sample usage where possible.
 
 ## 📄 License
+
 ```xml
 Designed and developed by 2025 Meticha
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+    Licensed under the Apache License, Version 2.0 (the "License");you may not use this file except in compliance with the License.You may obtain a copy of the License at
 
-   http://www.apache.org/licenses/LICENSE-2.0
+    http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+    Unless required by applicable law or agreed to in writing, softwaredistributed under the License is distributed on an "AS IS" BASIS,WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.See the License for the specific language governing permissions andlimitations under the License.
 ```
 
 If TriggerX saves you time, consider giving the repo a ⭐ on GitHub.
