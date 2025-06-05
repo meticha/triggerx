@@ -21,8 +21,17 @@ import androidx.core.net.toUri
 import java.lang.ref.WeakReference
 import java.lang.reflect.Method
 
-
-object AlarmPermissionManager {
+/**
+ * Manages permission checks and Intent creation for various Android permissions
+ * required by the TriggerX library.
+ */
+internal object AlarmPermissionManager {
+    /**
+     * Checks if the app has permission to schedule exact alarms.
+     *
+     * @param context The application context.
+     * @return `true` if exact alarm permission is granted or not required (pre-Android S), `false` otherwise.
+     */
     fun hasExactAlarmPermission(context: Context): Boolean {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             context.getSystemService(AlarmManager::class.java).canScheduleExactAlarms()
@@ -31,10 +40,22 @@ object AlarmPermissionManager {
         }
     }
 
+    /**
+     * Checks if the app has permission to draw overlays on top of other apps.
+     *
+     * @param context The application context.
+     * @return `true` if overlay permission is granted, `false` otherwise.
+     */
     fun hasOverlayPermission(context: Context): Boolean {
         return Settings.canDrawOverlays(context)
     }
 
+    /**
+     * Checks if the app is whitelisted from battery optimizations.
+     *
+     * @param context The application context.
+     * @return `true` if the app is ignoring battery optimizations, `false` otherwise.
+     */
     fun hasBatteryOptimizationPermission(context: Context): Boolean {
         val powerManager =
             context.getSystemService(Context.POWER_SERVICE) as android.os.PowerManager
@@ -42,6 +63,13 @@ object AlarmPermissionManager {
         return powerManager.isIgnoringBatteryOptimizations(packageName)
     }
 
+    /**
+     * Checks if the "Show on Lock Screen" permission is enabled, typically for Xiaomi (MIUI) devices.
+     * This uses reflection to access a hidden API and may not work on all devices or future Android versions.
+     *
+     * @param context The application context.
+     * @return `true` if the permission appears to be enabled, `false` otherwise or if an error occurs.
+     */
     @SuppressLint("DiscouragedPrivateApi")
     // TODO("Need to check in future")
     fun isShowOnLockScreenPermissionEnable(context: Context): Boolean {
@@ -61,6 +89,12 @@ object AlarmPermissionManager {
         }
     }
 
+    /**
+     * Checks if the app has permission to post notifications.
+     *
+     * @param context The application context.
+     * @return `true` if notification permission is granted or not required (pre-Android Tiramisu), `false` otherwise.
+     */
     fun isNotificationPermissionEnabled(context: Context): Boolean {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             ContextCompat.checkSelfPermission(
@@ -72,6 +106,13 @@ object AlarmPermissionManager {
         }
     }
 
+    /**
+     * Checks if a specific [PermissionType] is granted.
+     *
+     * @param context The application context.
+     * @param permission The [PermissionType] to check.
+     * @return `true` if the specified permission is granted, `false` otherwise.
+     */
     fun isGranted(context: Context, permission: PermissionType): Boolean {
         return when (permission) {
             PermissionType.ALARM -> hasExactAlarmPermission(context)
@@ -82,6 +123,16 @@ object AlarmPermissionManager {
         }
     }
 
+    /**
+     * Creates an [Intent] to request a specific [PermissionType] from the user.
+     * The user should be directed to the system settings screen corresponding to this intent.
+     *
+     * @param context The application context.
+     * @param permissionType The [PermissionType] for which to create the request intent.
+     * @return An [Intent] that can be used to launch the relevant system settings screen.
+     *         Returns an empty Intent for [PermissionType.NOTIFICATION] on pre-Tiramisu devices
+     *         as no explicit system settings intent is typically used.
+     */
     fun createPermissionIntent(context: Context, permissionType: PermissionType): Intent {
         when (permissionType) {
             PermissionType.ALARM -> {
@@ -103,6 +154,7 @@ object AlarmPermissionManager {
             }
 
             PermissionType.LOCK_SCREEN -> {
+                // This intent is specific to MIUI and might not work on other devices.
                 return Intent("miui.intent.action.APP_PERM_EDITOR").apply {
                     setClassName(
                         "com.miui.securitycenter",
@@ -118,42 +170,81 @@ object AlarmPermissionManager {
                         putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
                     }
                 } else {
-                    Intent()
+                    Intent() // No standard intent pre-Tiramisu, permission granted by default.
                 }
             }
-
         }
     }
 }
 
-enum class PermissionType { ALARM, OVERLAY, BATTERY_OPTIMIZATION, LOCK_SCREEN, NOTIFICATION }
+/**
+ * Represents the different types of permissions that the TriggerX library
+ * may need to check or request.
+ */
+enum class PermissionType {
+    /** Permission to schedule exact alarms (Android S+). */
+    ALARM,
+
+    /** Permission to draw overlays on top of other applications. */
+    OVERLAY,
+
+    /** Permission to be exempt from battery optimizations. */
+    BATTERY_OPTIMIZATION,
+
+    /** Special permission for showing on the lock screen, primarily for Xiaomi (MIUI) devices. */
+    LOCK_SCREEN,
+
+    /** Permission to post notifications (Android Tiramisu+). */
+    NOTIFICATION
+}
 
 /**
- * Manages the state of permission requests and their UI flows
+ * Manages the state of permission requests and their UI flows, particularly for a list
+ * of required permissions. This class is typically used in conjunction with Jetpack Compose.
+ *
+ * @param permissionList The initial list of [PermissionType]s that this state manager will handle.
  */
 class PermissionState(
     permissionList: List<PermissionType>,
 ) {
-    // WeakReference to context to avoid memory leaks
+    /**
+     * A [WeakReference] to the [Context] to avoid memory leaks.
+     * This should be set by the composable that initializes [PermissionState].
+     */
     lateinit var contextRef: WeakReference<Context>
 
-    // All permissions that need to be handled
+    // All permissions that need to be handled by this instance
     private val allPermissions = mutableStateListOf<PermissionType>()
 
-    // Permissions waiting to be processed
+    // Permissions currently waiting to be processed in the request queue
     private var pendingPermissions = mutableStateListOf<PermissionType>()
 
-    // Currently processing permission
+    /**
+     * The [PermissionType] currently being processed or for which a rationale might be shown.
+     * Null if no permission is currently active in the flow.
+     */
     internal var currentPermission by mutableStateOf<PermissionType?>(null)
 
-    // UI state
+    /**
+     * Controls whether a rationale popup should be shown to the user.
+     * Set to `true` to indicate a rationale is needed before re-requesting a denied permission.
+     */
     internal var showRationalePopUp by mutableStateOf(false)
+
+    /**
+     * Flag to indicate if the app has recently resumed from a system settings screen
+     * where the user might have changed permissions.
+     */
     internal var resumedFromSettings by mutableStateOf(false)
 
-    // Permission states
+    // Internal state tracking if all required permissions are granted.
     private var isRequiredPermissionGranted by mutableStateOf(false)
 
-    // Permission request launcher
+    /**
+     * The [ManagedActivityResultLauncher] used to launch permission request intents
+     * (e.g., system settings screens) and handle their results.
+     * This should be initialized and set by the composable that uses [PermissionState].
+     */
     internal var launcher: ManagedActivityResultLauncher<Intent, ActivityResult>? = null
 
     init {
@@ -162,24 +253,40 @@ class PermissionState(
     }
 
     /**
-     * Checks if all required permissions are actually granted
+     * Checks if all permissions in the `allPermissions` list for this state
+     * are currently granted.
+     *
+     * @return `true` if all required permissions are granted, `false` otherwise.
+     *         This also updates an internal state flag.
      */
     fun allRequiredGranted(): Boolean {
+        val context = contextRef.get() ?: return false // Cannot check without context
         isRequiredPermissionGranted = allPermissions
             .all { isGranted(it) }
         return isRequiredPermissionGranted
     }
 
     /**
-     * Checks if a specific permission is granted
+     * Checks if a specific [PermissionType] is granted.
+     * Requires [contextRef] to be initialized and valid.
+     *
+     * @param permission The [PermissionType] to check.
+     * @return `true` if the permission is granted, `false` otherwise or if context is unavailable.
+     * @throws IllegalStateException if [contextRef] has not been initialized.
+     * @throws NullPointerException if [contextRef.get()] returns null after initialization.
      */
     fun isGranted(permission: PermissionType): Boolean {
-        val context = requireNotNull(contextRef.get())
+        val context =
+            requireNotNull(contextRef.get()) { "Context not available. Ensure contextRef is set." }
         return AlarmPermissionManager.isGranted(context, permission)
     }
 
     /**
-     * Starts or continues the permission request flow
+     * Starts or continues the permission request flow.
+     * It processes the permissions from the `pendingPermissions` queue one by one.
+     * If a permission is already granted, it moves to the next.
+     * Otherwise, it launches the appropriate system intent using the [launcher].
+     * Requires [contextRef] and [launcher] to be initialized.
      */
     fun requestPermission() {
         if (pendingPermissions.isNotEmpty()) {
@@ -188,27 +295,30 @@ class PermissionState(
                 if (isGranted(permission)) {
                     next() // Permission already granted, move to next
                 } else {
+                    val context =
+                        requireNotNull(contextRef.get()) { "Context not available for launching intent." }
                     launcher?.launch(
                         AlarmPermissionManager.createPermissionIntent(
-                            requireNotNull(contextRef.get()),
+                            context,
                             permission
                         )
                     )
                 }
             }
+        } else {
+            currentPermission = null // No more pending permissions
         }
     }
 
     /**
-     * Moves to the next permission in the queue
+     * Moves to the next permission in the `pendingPermissions` queue
+     * and then attempts to request it.
+     * This is typically called after a permission request has been handled (granted or denied).
      */
     internal fun next() {
         if (pendingPermissions.isNotEmpty()) {
             pendingPermissions.removeAt(0)
         }
-
-        requestPermission()
+        requestPermission() // Attempt to process the next permission, or clear currentPermission if queue is empty
     }
-
 }
-

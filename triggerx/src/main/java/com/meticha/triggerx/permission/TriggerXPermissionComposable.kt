@@ -19,6 +19,24 @@ import com.meticha.triggerx.permission.AlarmPermissionManager.isGranted
 import java.lang.ref.WeakReference
 
 
+/**
+ * Remembers and manages the state of essential permissions required by the TriggerX library.
+ *
+ * This composable function initializes a [PermissionState] that tracks and helps request
+ * permissions for exact alarms, overlays (display over other apps), battery optimization exemption,
+ * and notifications (on API 33+). It also includes special considerations for Xiaomi devices
+ * regarding lock screen display permissions.
+ *
+ * The [PermissionState] returned by this function can be used to check if all required
+ * permissions are granted and to trigger permission requests. It handles the complexities
+ * of launching system dialogs for these permissions and reacting to their results.
+ *
+ * It also sets up a [PermissionLifeCycleCheckEffect] to re-check permissions when the
+ * composable's lifecycle resumes, which is useful for when the user returns from system settings.
+ *
+ * @return A [PermissionState] instance that holds the current status of all relevant permissions
+ *         and provides methods to request them.
+ */
 @SuppressLint("ComposableNaming")
 @Composable
 fun rememberAppPermissionState(): PermissionState {
@@ -96,32 +114,20 @@ private fun handlePermissionDenial(permissionState: PermissionState) {
 }
 
 
-@Composable
-fun PermissionLifeCycleCheckEffect(
-    permissionState: PermissionState,
-    lifecycleEvent: Lifecycle.Event = Lifecycle.Event.ON_RESUME,
-) {
 
-    val observer = LifecycleEventObserver { _, event ->
-        LoggerConfig.logger.d("Event: $event")
-        if (event == lifecycleEvent) {
-            if (permissionState.resumedFromSettings) {
-                permissionState.requestPermission()
-                permissionState.resumedFromSettings = false
-            }
-        }
-    }
-    val lifecycleOwner = LocalLifecycleOwner.current
-    DisposableEffect(lifecycleOwner) {
-        lifecycleOwner.lifecycle.addObserver(observer)
-        onDispose {
-            lifecycleOwner.lifecycle.removeObserver(observer)
-        }
-    }
-}
-
+/**
+ * A composable function that displays a standard [AlertDialog].
+ *
+ * This popup is typically used to show rationale to the user before requesting a sensitive permission
+ * or to inform them about the necessity of a permission if it has been denied.
+ *
+ * @param message The main message to be displayed in the dialog.
+ * @param onConfirm A lambda function to be executed when the confirm button (e.g., "Grant") is clicked.
+ * @param onDismiss A lambda function to be executed when the dismiss button (e.g., "Cancel") is clicked
+ *                  or when the dialog is dismissed by tapping outside or pressing the back button.
+ */
 @Composable
-fun ShowPopup(
+internal fun ShowPopup(
     message: String,
     onConfirm: () -> Unit,
     onDismiss: () -> Unit,
