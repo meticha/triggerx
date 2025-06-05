@@ -275,7 +275,6 @@ class PermissionState(
      *         This also updates an internal state flag.
      */
     fun allRequiredGranted(): Boolean {
-        val context = contextRef.get() ?: return false // Cannot check without context
         isRequiredPermissionGranted = allPermissions
             .all { isGranted(it) }
         return isRequiredPermissionGranted
