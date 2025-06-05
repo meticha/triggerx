@@ -9,7 +9,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.sp
 
-class DefaultTriggerActivity : TriggerXActivity() {
+internal class DefaultTriggerActivity : TriggerXActivity() {
     @Composable
     override fun AlarmContent() {
         Box(

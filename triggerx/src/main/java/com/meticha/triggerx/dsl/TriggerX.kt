@@ -11,8 +11,16 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 object TriggerX {
+
+    // Holds the global configuration for TriggerX. This is set during initialization.
     internal var config: TriggerXConfig? = null
 
+    /**
+     * Initializes the TriggerX library with a custom configuration.
+     *
+     * @param context The application context
+     * @param configure Lambda to configure the TriggerXConfig instance
+     */
     fun init(context: Context, configure: TriggerXConfig.() -> Unit) {
         val conf = TriggerXConfig().apply(configure)
         config = conf
@@ -27,6 +35,12 @@ object TriggerX {
         setupNotificationChannel(context.applicationContext)
     }
 
+    /**
+     * Sets up the notification channel required for foreground service notifications.
+     * This is required on Android 8.0+ (API 26+).
+     *
+     * @param context The application context
+     */
     private fun setupNotificationChannel(context: Context) {
         val channelName = config?.notificationChannelName ?: "TriggerX Alarms"
         val channel = NotificationChannel(
@@ -42,6 +56,7 @@ object TriggerX {
 
     const val DEFAULT_CHANNEL_ID = "triggerx_channel"
 
-    fun getNotificationTitle(): String = config?.notificationTitle ?: "Alarm"
-    fun getNotificationMessage(): String = config?.notificationMessage ?: "Alarm is ringing"
+    internal fun getNotificationTitle(): String = config?.notificationTitle ?: "Alarm"
+    internal fun getNotificationMessage(): String =
+        config?.notificationMessage ?: "Alarm is ringing"
 }

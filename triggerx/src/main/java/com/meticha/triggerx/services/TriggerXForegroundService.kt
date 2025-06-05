@@ -18,20 +18,72 @@ import com.meticha.triggerx.receivers.TriggerXAlarmReceiver.Companion.ALARM_ACTI
 import kotlinx.coroutines.runBlocking
 import kotlin.jvm.java
 
-class TriggerXForegroundService : Service() {
+/**
+ * A [Service] that runs in the foreground to handle alarm events.
+ *
+ * This service is started by [com.meticha.triggerx.receivers.TriggerXAlarmReceiver] when an alarm fires.
+ * It's responsible for:
+ * 1. Displaying a foreground notification to comply with Android foreground service requirements.
+ * 2. Acquiring a wake lock to ensure the device stays awake during processing.
+ * 3. Fetching alarm-specific data using [com.meticha.triggerx.provider.TriggerXDataProvider].
+ * 4. Launching the configured target [Activity] with the alarm data.
+ * 5. Releasing the wake lock and stopping itself once the work is done.
+ */
+internal class TriggerXForegroundService : Service() {
+    /**
+     * Companion object for [TriggerXForegroundService].
+     * Contains constants used by the service.
+     */
     companion object {
+        /**
+         * Unique ID for the foreground service notification.
+         */
         private const val NOTIFICATION_ID = 1001
+
+        /**
+         * Default channel ID for the foreground service notification.
+         */
         private const val DEFAULT_CHANNEL_ID = "triggerx_channel"
     }
 
+    /**
+     * Returns null as this service is not designed for binding.
+     * @param intent The Intent that was used to bind to this service.
+     * @return Always returns null.
+     */
     override fun onBind(intent: Intent?): IBinder? = null
 
+    /**
+     * Called by the system when the service is first created.
+     * Responsible for creating the notification channel for the foreground service.
+     */
     override fun onCreate() {
         super.onCreate()
         createNotificationChannel()
     }
 
-
+    /**
+     * Called by the system every time a client starts the service using [Context.startService].
+     * This method handles the core logic of the alarm execution.
+     *
+     * It performs the following steps:
+     * - Builds and displays a foreground notification.
+     * - Acquires a partial wake lock.
+     * - Processes the incoming alarm intent:
+     *     - Extracts alarm ID and type.
+     *     - Fetches data using [TriggerX.config.alarmDataProvider].
+     *     - Resolves the target activity class.
+     *     - Starts the target activity with alarm data.
+     * - Stops the service itself.
+     * - Releases the wake lock in a finally block.
+     *
+     * @param intent The Intent supplied to [Context.startService]. This should contain
+     *               the alarm action, ID, and type.
+     * @param flags Additional data about this start request.
+     * @param startId A unique integer representing this specific request to start.
+     * @return [START_NOT_STICKY] to indicate that if the service is killed, it should not be
+     *         automatically restarted.
+     */
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
 
         val notification = buildNotification()
@@ -95,11 +147,19 @@ class TriggerXForegroundService : Service() {
         return START_NOT_STICKY
     }
 
+    /**
+     * Called by the system to notify a Service that it is no longer used and is being removed.
+     * Logs the destruction of the service.
+     */
     override fun onDestroy() {
         super.onDestroy()
         LoggerConfig.logger.d("Service destroyed")
     }
 
+    /**
+     * Creates the notification channel for the foreground service.
+     * Uses the channel name from [TriggerX.config] or a default name.
+     */
     private fun createNotificationChannel() {
         val channelName = TriggerX.config?.notificationChannelName ?: "TriggerX Alarms"
         val channel = NotificationChannel(
@@ -113,6 +173,11 @@ class TriggerXForegroundService : Service() {
         nm.createNotificationChannel(channel)
     }
 
+    /**
+     * Builds the [Notification] instance for the foreground service.
+     * Uses the title and message from [TriggerX.getNotificationTitle] and [TriggerX.getNotificationMessage].
+     * @return The configured [Notification] object.
+     */
     private fun buildNotification(): Notification {
         return NotificationCompat.Builder(this, DEFAULT_CHANNEL_ID)
             .setContentTitle(TriggerX.getNotificationTitle())
@@ -121,6 +186,16 @@ class TriggerXForegroundService : Service() {
             .build()
     }
 
+    /**
+     * Resolves the [Activity] class that should be launched when the alarm fires.
+     * The class is determined in the following order of preference:
+     * 1. [TriggerX.config.activityClass]
+     * 2. Class loaded from [TriggerXPreferences]
+     * 3. [DefaultTriggerActivity]
+     *
+     * @param context The application context, used for loading preferences.
+     * @return The [Class] of the Activity to be launched.
+     */
     suspend fun resolveActivityClass(context: Context): Class<out Activity> {
         return TriggerX.config?.activityClass
             ?: TriggerXPreferences.load(context)?.activityClass

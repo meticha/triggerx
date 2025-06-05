@@ -9,7 +9,26 @@ import androidx.core.content.getSystemService
 import com.meticha.triggerx.logger.LoggerConfig
 import com.meticha.triggerx.receivers.TriggerXAlarmReceiver
 
+/**
+ * Manages the scheduling and cancellation of alarms using Android's [AlarmManager].
+ * This class provides methods to schedule single or multiple alarms and to cancel existing ones.
+ */
 class TriggerXAlarmScheduler {
+    /**
+     * Schedules an exact alarm to be triggered at a specific time.
+     *
+     * This function uses [AlarmManager.setExactAndAllowWhileIdle] to ensure the alarm fires
+     * even when the device is in Doze mode. It requires the `SCHEDULE_EXACT_ALARM` permission
+     * on Android S (API 31) and above.
+     *
+     * @param context The application context.
+     * @param triggerAtMillis The time in milliseconds at which the alarm should trigger.
+     * @param type A string classifying the type of alarm, passed to the receiver.
+     * @param alarmId A unique integer identifier for the alarm. Defaults to a value derived
+     *                from the current system time.
+     * @return `true` if the alarm was successfully scheduled, `false` otherwise (e.g., if
+     *         permission is denied or an exception occurs).
+     */
     fun scheduleAlarm(
         context: Context,
         triggerAtMillis: Long,
@@ -60,6 +79,16 @@ class TriggerXAlarmScheduler {
         }
     }
 
+    /**
+     * Schedules an exact alarm with a default empty type string.
+     *
+     * @param context The application context.
+     * @param triggerAtMillis The time in milliseconds at which the alarm should trigger.
+     * @param alarmId A unique integer identifier for the alarm. Defaults to a value derived
+     *                from the current system time.
+     * @return `true` if the alarm was successfully scheduled, `false` otherwise.
+     * @see scheduleAlarm
+     */
     fun scheduleAlarm(
         context: Context,
         triggerAtMillis: Long,
@@ -67,6 +96,16 @@ class TriggerXAlarmScheduler {
     ) = scheduleAlarm(context, triggerAtMillis, "", alarmId)
 
 
+    /**
+     * Schedules multiple alarms based on a list of events.
+     * Each event is a pair of alarm ID and trigger time.
+     *
+     * @param context The application context.
+     * @param events A list of [Pair]s, where each pair contains an `Int` (alarmId)
+     *               and a `Long` (triggerTime in milliseconds).
+     * @return A list of [Boolean] values, where each boolean indicates whether the
+     *         corresponding alarm in the `events` list was successfully scheduled.
+     */
     fun scheduleMultipleAlarms(
         context: Context,
         events: List<Pair<Int, Long>> // Pair<alarmId, triggerTime>
@@ -76,6 +115,15 @@ class TriggerXAlarmScheduler {
         }
     }
 
+    /**
+     * Cancels a previously scheduled alarm.
+     *
+     * If an alarm with the given `alarmId` exists, it will be cancelled.
+     * If no such alarm is found, this method does nothing.
+     *
+     * @param context The application context.
+     * @param alarmId The unique integer identifier of the alarm to cancel.
+     */
     fun cancelAlarm(context: Context, alarmId: Int) {
         val intent = Intent(context, TriggerXAlarmReceiver::class.java).apply {
             action = TriggerXAlarmReceiver.ALARM_ACTION
