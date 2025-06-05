@@ -20,7 +20,7 @@ git checkout -b feature/your-awesome-feature
 
 1.  Clone your fork locally:
     ```bash
-    git clone https://github.com/meticha/triggerx.git
+    git clone https://github.com/<YOUR_USERNAME>/triggerx.git
     ```
 2.  Open the project in Android Studio.
 3.  Let Android Studio download all the necessary dependencies and sync the project.
