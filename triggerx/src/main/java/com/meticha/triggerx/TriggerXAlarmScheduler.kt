@@ -125,8 +125,27 @@ class TriggerXAlarmScheduler {
         context: Context,
         events: List<Pair<Int, Long>> // Pair<alarmId, triggerTime>
     ): List<Boolean> {
+        return scheduleMultipleAlarms(context, "", events)
+    }
+
+    /**
+     * Schedules multiple alarms based on a list of events.
+     * Each event is a pair of alarm ID and trigger time.
+     *
+     * @param context The application context.
+     * @param type A string classifying the type of alarm, passed to the receiver.
+     * @param events A list of [Pair]s, where each pair contains an `Int` (alarmId)
+     *               and a `Long` (triggerTime in milliseconds).
+     * @return A list of [Boolean] values, where each boolean indicates whether the
+     *         corresponding alarm in the `events` list was successfully scheduled.
+     */
+    fun scheduleMultipleAlarms(
+        context: Context,
+        type: String,
+        events: List<Pair<Int, Long>> // Pair<alarmId, triggerTime>
+    ): List<Boolean> {
         return events.map { (id, time) ->
-            scheduleAlarm(context, time, "", id)
+            scheduleAlarm(context, time, type, id)
         }
     }
 
