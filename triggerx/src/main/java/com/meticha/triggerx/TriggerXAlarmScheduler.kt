@@ -125,9 +125,7 @@ class TriggerXAlarmScheduler {
         context: Context,
         events: List<Pair<Int, Long>> // Pair<alarmId, triggerTime>
     ): List<Boolean> {
-        return events.map { (id, time) ->
-            scheduleAlarm(context, time, "", id)
-        }
+        return scheduleMultipleAlarms(context, "", events)
     }
 
     /**
