@@ -172,7 +172,7 @@ val inFiveMinutes = Calendar.getInstance().apply {
 TriggerXAlarmScheduler().scheduleAlarm(
     context = this,
     alarmId = 1,
-    alarmType = "MEETING",
+    type = "MEETING",
     triggerAtMillis = inFiveMinutes
 )
 ```
