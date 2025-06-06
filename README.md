@@ -2,6 +2,25 @@
 
 ![triggerx-banner.png](banner/triggerx-banner.png)
 
+<p align="center">
+  <a href="https://github.com/Meticha/TriggerX/releases">
+    <img src="https://img.shields.io/github/v/release/Meticha/TriggerX?label=version" alt="release">
+  </a>
+  <a href="https://maven-badges.herokuapp.com/maven-central/com.meticha.triggerx/triggerx">
+    <img src="https://maven-badges.herokuapp.com/maven-central/com.meticha.triggerx/triggerx/badge.svg" alt="maven-central">
+  </a>
+  <a href="https://github.com/Meticha/TriggerX/blob/main/LICENSE">
+    <img src="https://img.shields.io/github/license/Meticha/TriggerX.svg" alt="license">
+  </a>
+  <a href="https://github.com/Meticha/TriggerX/stargazers">
+    <img src="https://img.shields.io/github/stars/Meticha/TriggerX.svg?style=social" alt="GitHub stars">
+  </a>
+  <a href="https://opensource.org/licenses/Apache-2.0">
+    <img alt="License" src="https://img.shields.io/badge/License-Apache%202.0-blue.svg"/>
+</a>
+</p>
+
+
 > **Note:** TriggerX is currently in Alpha. APIs may change.
 
 TriggerX is a modular, developer-friendly **alarm execution** library for Android.
