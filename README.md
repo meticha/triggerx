@@ -6,9 +6,11 @@
   <a href="https://github.com/Meticha/TriggerX/releases">
     <img src="https://img.shields.io/github/v/release/Meticha/TriggerX?label=version" alt="release">
   </a>
-  <a href="https://maven-badges.herokuapp.com/maven-central/com.meticha.triggerx/triggerx">
-    <img src="https://maven-badges.herokuapp.com/maven-central/com.meticha.triggerx/triggerx/badge.svg" alt="maven-central">
+  <a href="https://central.sonatype.com/artifact/com.meticha/triggerx">
+  <img src="https://img.shields.io/maven-central/v/com.meticha/triggerx.svg?label=Maven%20Central" alt="Maven Central">
   </a>
+  <img src="https://img.shields.io/badge/Jetpack%20Compose-Supported-4285F4?logo=android" alt="Jetpack Compose Supported">
+  <img src="https://img.shields.io/badge/Kotlin-2.1.20-blueviolet?logo=kotlin" alt="Kotlin Version">
   <a href="https://github.com/Meticha/TriggerX/blob/main/LICENSE">
     <img src="https://img.shields.io/github/license/Meticha/TriggerX.svg" alt="license">
   </a>
@@ -61,7 +63,6 @@ the system details.
 
 ### 📦 Installation
 
-
 <details>
 <summary>Version catalogs</summary>
 
@@ -91,6 +92,7 @@ dependencies {
 ### 0. Add these permission in your `AndroidManifest.xml` file:
 
 ```xml
+
 <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
 
     <!-- For displaying an Activity over other apps/lock screen -->
