@@ -61,11 +61,30 @@ the system details.
 
 ### 📦 Installation
 
-Add the library inside your app level `build.gradle` file:
 
-```kts
-implementation("com.meticha:triggerx:0.0.3")
+<details>
+<summary>Version catalogs</summary>
+
+```toml
+[versions]
+triggerx = "0.0.4"
+
+[dependencies]
+triggerx = { module = "com.meticha:triggerx", version.ref = "triggerx" }
 ```
+
+</details>
+
+<details>
+<summary>Gradle DSL</summary>
+
+```kotlin
+dependencies {
+    implementation("com.meticha:triggerx:0.0.4")
+}
+```
+
+</details>
 
 ## 🚀 Quick Start
 
