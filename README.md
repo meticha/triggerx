@@ -3,9 +3,6 @@
 ![triggerx-banner.png](banner/triggerx-banner.png)
 
 <p align="center">
-  <a href="https://github.com/Meticha/TriggerX/releases">
-    <img src="https://img.shields.io/github/v/release/Meticha/TriggerX?label=version" alt="release">
-  </a>
   <a href="https://central.sonatype.com/artifact/com.meticha/triggerx">
   <img src="https://img.shields.io/maven-central/v/com.meticha/triggerx.svg?label=Maven%20Central" alt="Maven Central">
   </a>
