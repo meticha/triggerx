@@ -11,6 +11,7 @@
   <a href="https://github.com/Meticha/TriggerX/blob/main/LICENSE">
     <img src="https://img.shields.io/github/license/Meticha/TriggerX.svg" alt="license">
   </a>
+  <a href="https://androidweekly.net/issues/issue-678"><img alt="Android Weekly" src="https://androidweekly.net/issues/issue-678/badge" height="20px"/></a>
   <a href="https://github.com/Meticha/TriggerX/stargazers">
     <img src="https://img.shields.io/github/stars/Meticha/TriggerX.svg?style=social" alt="GitHub stars">
   </a>
