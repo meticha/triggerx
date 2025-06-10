@@ -431,10 +431,13 @@ TriggerXAlarmScheduler().cancelAlarm(this, alarmId = 1)
 
 ## 🤝 Contributing
 
-- Fork the repo
-- Create a branch (feature/your-idea)
-- Commit and open a Pull Request
-- Please include tests or sample usage where possible.
+See (CONTRIBUTING.MD)[CONTRIBUTING.md] for more info on how you can contribute to this repository
+
+## Find this repository useful? :heart:
+
+Support it by joining __[stargazers](https://github.com/meticha/triggerx/stargazers)__ for this
+repository. :star: <br>
+Also __[follow](https://github.com/meticha)__ Meticha for the next creations! 🤩
 
 ## 📄 License
 
@@ -453,5 +456,3 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 ```
-
-If TriggerX saves you time, consider giving the repo a ⭐ on GitHub.
