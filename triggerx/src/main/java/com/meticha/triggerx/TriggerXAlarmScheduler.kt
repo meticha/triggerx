@@ -150,6 +150,32 @@ class TriggerXAlarmScheduler {
     }
 
     /**
+     * Schedules multiple alarms based on a list of events and returns a list of successfully scheduled alarm IDs.
+     * Each event is a pair of alarm ID and trigger time. This function uses a default empty type string for alarms.
+     *
+     * @param context The application context.
+     * @param events A list of [Pair]s, where each pair contains an `Int` (alarmId)
+     *               and a `Long` (triggerTime in milliseconds).
+     * @return A list of [Int] values, where each integer is an ID of an alarm that was
+     *         successfully scheduled.
+     */
+    fun scheduleAlarms(
+        context: Context,
+        events: List<Pair<Int, Long>> // Pair<alarmId, triggerTime>
+    ): List<Int> {
+        val scheduledIds = mutableListOf<Int>()
+        // Call the existing overload that takes a type and returns List<Boolean>
+        val results = scheduleMultipleAlarms(context, events)
+        events.forEachIndexed { index, event ->
+            // If the result at this index is true, the alarm was scheduled
+            if (results.getOrElse(index) { false }) {
+                scheduledIds.add(event.first) // event.first is the alarmId
+            }
+        }
+        return scheduledIds
+    }
+
+    /**
      * Cancels a previously scheduled alarm.
      *
      * If an alarm with the given `alarmId` exists, it will be cancelled.
