@@ -165,7 +165,7 @@ class TriggerXAlarmScheduler {
     ): List<Int> {
         val scheduledIds = mutableListOf<Int>()
         // Call the existing overload that takes a type and returns List<Boolean>
-        val results = scheduleMultipleAlarms(context, "", events)
+        val results = scheduleMultipleAlarms(context, events)
         events.forEachIndexed { index, event ->
             // If the result at this index is true, the alarm was scheduled
             if (results.getOrElse(index) { false }) {
