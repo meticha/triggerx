@@ -431,7 +431,7 @@ TriggerXAlarmScheduler().cancelAlarm(this, alarmId = 1)
 
 ## 🤝 Contributing
 
-See (CONTRIBUTING.MD)[CONTRIBUTING.md] for more info on how you can contribute to this repository
+See [CONTRIBUTING.MD](CONTRIBUTING.md) for more info on how you can contribute to this repository
 
 ## Find this repository useful? :heart:
 
