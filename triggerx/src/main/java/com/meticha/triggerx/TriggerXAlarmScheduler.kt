@@ -129,15 +129,13 @@ class TriggerXAlarmScheduler {
     }
 
     /**
-     * Schedules multiple alarms based on a list of events.
-     * Each event is a pair of alarm ID and trigger time.
+     * Schedules multiple alarms with a specified type for each event.
      *
-     * @param context The application context.
-     * @param type A string classifying the type of alarm, passed to the receiver.
-     * @param events A list of [Pair]s, where each pair contains an `Int` (alarmId)
-     *               and a `Long` (triggerTime in milliseconds).
-     * @return A list of [Boolean] values, where each boolean indicates whether the
-     *         corresponding alarm in the `events` list was successfully scheduled.
+     * Each event consists of an alarm ID and a trigger time in milliseconds. Returns a list of booleans indicating the success of scheduling each alarm.
+     *
+     * @param type A string used to classify the alarm, passed to the receiver.
+     * @param events List of pairs where each pair contains an alarm ID and its trigger time.
+     * @return List of booleans indicating whether each alarm was successfully scheduled.
      */
     fun scheduleMultipleAlarms(
         context: Context,
@@ -150,14 +148,12 @@ class TriggerXAlarmScheduler {
     }
 
     /**
-     * Schedules multiple alarms based on a list of events and returns a list of successfully scheduled alarm IDs.
-     * Each event is a pair of alarm ID and trigger time. This function uses a default empty type string for alarms.
+     * Schedules multiple alarms and returns the IDs of those successfully scheduled.
      *
-     * @param context The application context.
-     * @param events A list of [Pair]s, where each pair contains an `Int` (alarmId)
-     *               and a `Long` (triggerTime in milliseconds).
-     * @return A list of [Int] values, where each integer is an ID of an alarm that was
-     *         successfully scheduled.
+     * Each event in the input list specifies an alarm ID and its trigger time in milliseconds. Alarms are scheduled with a default empty type string. Only the IDs of alarms that were successfully scheduled are included in the returned list.
+     *
+     * @param events List of pairs, each containing an alarm ID and its trigger time in milliseconds.
+     * @return List of alarm IDs that were successfully scheduled.
      */
     fun scheduleAlarms(
         context: Context,
