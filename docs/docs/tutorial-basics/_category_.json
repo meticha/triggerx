@@ -1,0 +1,8 @@
+{
+  "label": "Basics",
+  "position": 2,
+  "link": {
+    "type": "generated-index",
+    "description": "Set up TriggerX from scratch, from adding the dependency to showing your first scheduled UI screen."
+  }
+}

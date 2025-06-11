@@ -1,0 +1,51 @@
+---
+title: 🔐 Requesting Permissions
+description: Your app needs a few permissions to show the custom UI
+sidebar_position: 4
+---
+
+Before TriggerX can schedule alarms or show UI over the lock screen, your app needs a few permissions.
+The library provides a helper `rememberAppPermissionState()` that makes permission handling simple and
+Compose-friendly.
+
+Here’s how to request permissions and schedule an alarm:
+
+```kotlin
+@Composable
+fun HomeScreen() {
+    val context = LocalContext.current
+    val permissionState = rememberAppPermissionState()
+
+    Scaffold { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .padding(16.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            ElevatedButton(
+                onClick = {
+                    if (permissionState.allRequiredGranted()) {
+                        // do stuff
+                    } else {
+                        permissionState.requestPermission()
+                    }
+                }
+            ) {
+                Text("Schedule Activity")
+            }
+        }
+    }
+}
+```
+
+## 💡 What This Does
+- `rememberAppPermissionState()` tracks the required permissions
+- On button tap:
+    - If all permissions are granted, then we can schedule the alarm
+    - If not, it triggers the permission request flow
+
+
+
