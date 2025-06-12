@@ -77,7 +77,7 @@ const config: Config = {
           maxHeadingLevel: 5,
     },
     navbar: {
-      title: 'TriggerX Documentation',
+      title: 'TriggerX',
       logo: {
         alt: 'TriggerX Logo',
         src: 'img/logo.svg',

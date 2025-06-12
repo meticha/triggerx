@@ -42,9 +42,6 @@ dependencies {
 <!-- Required to avoid getting blocked by battery optimizations -->
 <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
 
-<!-- Needed for displaying UI even when the screen is locked or the app is not running -->
-<uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
-
 <!-- Allows scheduling of exact alarms -->
 <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
 ```
