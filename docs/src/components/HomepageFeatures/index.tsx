@@ -11,32 +11,29 @@ type FeatureItem = {
 
 const FeatureList: FeatureItem[] = [
   {
-    title: 'Easy to Use',
+    title: '✅ Time-Triggered UI That Just Works',
     Svg: require('@site/static/img/undraw_docusaurus_mountain.svg').default,
     description: (
       <>
-        Docusaurus was designed from the ground up to be easily installed and
-        used to get your website up and running quickly.
+        Reliable alarms that launch your UI even if the app’s killed or in Doze. No hacks, just results.
       </>
     ),
   },
   {
-    title: 'Focus on What Matters',
+    title: '⚙️ Fully Custom UI with Compose',
     Svg: require('@site/static/img/undraw_docusaurus_tree.svg').default,
     description: (
       <>
-        Docusaurus lets you focus on your docs, and we&apos;ll do the chores. Go
-        ahead and move your docs into the <code>docs</code> directory.
+        Build any screen you want using Jetpack Compose. We’ll take care of showing it.
       </>
     ),
   },
   {
-    title: 'Powered by React',
+    title: '🔐 Handles Permissions So You Don’t Have To',
     Svg: require('@site/static/img/undraw_docusaurus_react.svg').default,
     description: (
       <>
-        Extend or customize your website layout by reusing React. Docusaurus can
-        be extended while reusing the same header and footer.
+        One-liner permission flow. No boilerplate, no confusion.
       </>
     ),
   },
