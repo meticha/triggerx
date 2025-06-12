@@ -7,7 +7,7 @@ import type * as Preset from '@docusaurus/preset-classic';
 const config: Config = {
   title: 'TriggerX Documentation',
   tagline: 'Trigger UI. On time. Every time.',
-  favicon: 'img/favicon.ico',
+  favicon: 'img/triggerx-logo.png',
 
   // Future flags, see https://docusaurus.io/docs/api/docusaurus-config#future
   future: {
@@ -45,7 +45,7 @@ const config: Config = {
           // Please change this to your repo.
           // Remove this to remove the "edit this page" links.
           editUrl:
-            'https://github.com/facebook/docusaurus/tree/main/packages/create-docusaurus/templates/shared/',
+            'https://github.com/meticha/triggerx/tree/main/docs/docs',
         },
         blog: {
           showReadingTime: true,
@@ -56,7 +56,7 @@ const config: Config = {
           // Please change this to your repo.
           // Remove this to remove the "edit this page" links.
           editUrl:
-            'https://github.com/facebook/docusaurus/tree/main/packages/create-docusaurus/templates/shared/',
+            'https://github.com/meticha/triggerx/tree/main/docs/docs',
           // Useful options to enforce blogging best practices
           onInlineTags: 'warn',
           onInlineAuthors: 'warn',
@@ -71,7 +71,7 @@ const config: Config = {
 
   themeConfig: {
     // Replace with your project's social card
-    image: 'img/docusaurus-social-card.jpg',
+    image: 'img/triggerx-banner.png',
     tableOfContents: {
           minHeadingLevel: 2,
           maxHeadingLevel: 5,
@@ -80,7 +80,7 @@ const config: Config = {
       title: 'TriggerX',
       logo: {
         alt: 'TriggerX Logo',
-        src: 'img/logo.svg',
+        src: 'img/triggerx-logo.png',
       },
       items: [
         {
@@ -99,6 +99,10 @@ const config: Config = {
             {
               label: 'Discord',
               href: 'https://discord.gg/p3SC9ZKzb6',
+            },
+            {
+              label: 'LinkedIn',
+              href: 'https://www.linkedin.com/company/meticha',
             },
             {
               label: 'X',

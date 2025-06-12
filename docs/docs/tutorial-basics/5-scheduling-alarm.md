@@ -71,6 +71,10 @@ fun HomeScreen() {
 - Once it fires, your custom activity (`MyAlarmActivity`) opens even if the app has been killed
 - Toast messages give instant feedback to the user that the alarm has been scheduled
 
+## Expected output
+
+<img src="/img/triggerx_example.gif" alt="TriggerX Example GIF" style={{ height: 600 }} />
+
 This is all you need to schedule a real, reliable UI trigger in your Compose app with just a button
 click. TriggerX handles the edge cases so you can focus on delivering delightful user experiences.
 

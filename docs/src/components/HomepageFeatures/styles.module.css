@@ -10,8 +10,10 @@
   width: 200px;
 }
 
+/* Card container */
 .card {
-  background: var(--ifm-background-color, #fff);
+  background-color: var(--ifm-card-background-color, var(--ifm-background-color));
+  color: var(--ifm-font-color-base);
   border-radius: 1rem;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
@@ -19,11 +21,13 @@
   height: 100%;
 }
 
+/* Hover effect */
 .card:hover {
   transform: translateY(-4px);
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
 }
 
+/* Icon */
 .icon {
   font-size: 2.5rem;
   margin-bottom: 1rem;
