@@ -1,6 +1,6 @@
 ---
 title: 🧩 Configuring TriggerX with DSL
-description: Setting up TriggerX is as simple as declaring what you want—literally. Using a `Kotlin DSL`
+description: "Setting up TriggerX is as simple as declaring what you want—literally. Using a `Kotlin DSL`"
 sidebar_position: 3
 ---
 

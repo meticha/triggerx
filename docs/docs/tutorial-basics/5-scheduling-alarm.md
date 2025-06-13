@@ -73,7 +73,7 @@ fun HomeScreen() {
 
 ## Expected output
 
-<img src="/img/triggerx_example.gif" alt="TriggerX Example GIF" style={{ height: 600 }} />
+<img src="/triggerx/docs/img/triggerx_example.gif" alt="TriggerX Example GIF" style={{ height: 600 }} />
 
 This is all you need to schedule a real, reliable UI trigger in your Compose app with just a button
 click. TriggerX handles the edge cases so you can focus on delivering delightful user experiences.

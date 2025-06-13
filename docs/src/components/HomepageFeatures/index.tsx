@@ -41,7 +41,7 @@ const FeatureList: FeatureItem[] = [
 
 function Feature({title, icon, description}: FeatureItem) {
   return (
-    <div className={clsx('col col--4')}>
+    <div className="col col--4">
       <div className={clsx(styles.card, 'padding--md')}>
         <div className="text--center">
           <div className={styles.icon}>{icon}</div>
@@ -59,7 +59,7 @@ export default function HomepageFeatures(): ReactNode {
       <div className="container">
         <div className="row">
           {FeatureList.map((props, idx) => (
-            <Feature key={idx} {...props} />
+            <Feature key={props.title} {...props} />
           ))}
         </div>
       </div>

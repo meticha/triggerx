@@ -6,11 +6,11 @@ sidebar_position: 2
 
 Before anything else, tell TriggerX what to show when the alarm fires. This is done by passing your
 custom `Activity` class, typically one that extends `TriggerXActivity`. This activity becomes the
-entry point for your UI, even when the app is killed or in background.
+entry point for your UI, even when the app is killed or in the background.
 
 Once you extend your class with `TriggerXActivity`, you can override the `AlarmContent` composable
 and put your custom UI over there. Also, since `TriggerxActivity` extends the `ComponentActivity`
-itself, you can also do all sorts of stuff that you might be doing in other activities. Like playing
+itself, you can also do all sorts of things that you might be doing in other activities. Like playing
 the music in the background while the activity is showing 😉
 
 Here's an example of a custom `AppAlarmActivity`:

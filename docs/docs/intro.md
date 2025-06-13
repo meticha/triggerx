@@ -6,7 +6,7 @@ sidebar_position: 1
 
 **TriggerX** is a modular, developer-friendly alarm execution library for Android. It simplifies
 scheduling exact alarms and showing user-facing UIs at a specific time, even when your App has been
-killed. You don't need worry about managing foreground-services, wake-locks, lock-screen flags or
+killed. You don't need to worry about managing foreground-services, wake-locks, lock-screen flags or
 permission management
 
 ## ❓Why TriggerX?
