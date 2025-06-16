@@ -55,7 +55,6 @@ fun rememberAppPermissionState(): PermissionState {
         addAll(
             listOf(
                 PermissionType.ALARM,
-                PermissionType.OVERLAY,
                 PermissionType.BATTERY_OPTIMIZATION,
                 PermissionType.NOTIFICATION
             )
