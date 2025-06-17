@@ -57,6 +57,10 @@ const config: Config = {
 
   themeConfig: {
     // Replace with your project's social card
+    colorMode: {
+          defaultMode: 'dark',
+          respectPrefersColorScheme: false,
+    },
     image: 'img/triggerx-banner.png',
     tableOfContents: {
           minHeadingLevel: 2,
