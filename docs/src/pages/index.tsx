@@ -34,7 +34,7 @@ export default function Home(): ReactNode {
   return (
     <Layout
       title={`${siteConfig.title}`}
-      description="Description will go into a meta tag in <head />">
+      description="TriggerX is a modular, developer-friendly alarm execution library for Android">
       <HomepageHeader />
       <main>
         <HomepageFeatures />

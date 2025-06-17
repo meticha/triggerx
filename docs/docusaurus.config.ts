@@ -59,8 +59,13 @@ const config: Config = {
     // Replace with your project's social card
     colorMode: {
           defaultMode: 'dark',
-          respectPrefersColorScheme: false,
+          respectPrefersColorScheme: true,
     },
+    metadata: [
+      {name: 'keywords', content: 'triggerx, alarm, scheduling, android, kotlin'},
+      {name: 'twitter:card', content: 'img/triggerx-banner.png'},
+      { rel: 'canonical', href: 'https://labs.meticha.com/triggerx/' },
+    ],
     image: 'img/triggerx-banner.png',
     tableOfContents: {
           minHeadingLevel: 2,
