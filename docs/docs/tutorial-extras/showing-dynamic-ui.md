@@ -85,7 +85,7 @@ class MyAlarmActivity : TriggerXActivity() {
 }
 ```
 
-## 4. Schedule the Alarm
+## 3. Schedule the Alarm
 Use this code in your Composable to schedule the alarm after inserting the task:
 
 ```kotlin
