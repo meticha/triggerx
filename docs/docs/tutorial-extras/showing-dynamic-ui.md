@@ -1,5 +1,6 @@
 ---
 title: Showing dynamic UI
+description: Configure TriggerX to show dynamic UI based on your Room database
 sidebar_position: 1
 ---
 
@@ -94,10 +95,14 @@ fun HomeScreen() {
     val alarmScheduler = remember { TriggerXAlarmScheduler() }
     val permissionState = rememberAppPermissionState()
 
-    Button(onClick = {
+    val scope = rememberCoroutineScope()
+    
+
+    ElevatedButton(
+        onClick = {
         if (permissionState.allRequiredGranted()) {
             val db = AppDatabase.getInstance(context)
-            CoroutineScope(Dispatchers.IO).launch {
+            scope.launch {
                 db.taskDao().insert(Task(1, "Meeting", "Discuss the roadmap"))
 
                 val triggerTime = Calendar.getInstance().apply {
