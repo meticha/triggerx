@@ -217,11 +217,31 @@ class TriggerXAlarmScheduler {
      * @param context The application context.
      */
     suspend fun cancelAllAlarms(context: Context) {
-        val alarmIds = TriggerXAlarmIdManager.getAlarmIds(context)
-        alarmIds.forEach { id ->
-            cancelAlarm(context, id.toInt())
+        try {
+            val alarmIds = TriggerXAlarmIdManager.getAlarmIds(context)
+            var cancelledCount = 0
+            var failedCount = 0
+            alarmIds.forEach { idString ->
+                try {
+                    val id = idString.toIntOrNull()
+                    if (id != null) {
+                        cancelAlarm(context, id)
+                        cancelledCount++
+                    } else {
+                        LoggerConfig.logger.w("Invalid alarm ID format: $idString")
+                        failedCount++
+                    }
+                } catch (e: Exception) {
+                    LoggerConfig.logger.e("Failed to cancel alarm ID: $idString", e)
+                    failedCount++
+                }
+            }
+
+            TriggerXAlarmIdManager.clearAllAlarmIds(context)
+            LoggerConfig.logger.i("Cancelled $cancelledCount alarms. Failed: $failedCount")
+        } catch (e: Exception) {
+            LoggerConfig.logger.e("Failed to cancel all alarms", e)
+            throw e
         }
-        TriggerXAlarmIdManager.clearAllAlarmIds(context)
-        LoggerConfig.logger.i("All alarms cancelled.")
     }
 }
