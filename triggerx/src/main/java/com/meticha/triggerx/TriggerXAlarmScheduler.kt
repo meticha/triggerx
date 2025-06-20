@@ -22,7 +22,9 @@ import android.content.Intent
 import android.os.Build
 import androidx.core.content.getSystemService
 import com.meticha.triggerx.logger.LoggerConfig
+import com.meticha.triggerx.preference.TriggerXAlarmIdManager
 import com.meticha.triggerx.receivers.TriggerXAlarmReceiver
+
 
 /**
  * Manages the scheduling and cancellation of alarms using Android's [AlarmManager].
@@ -44,7 +46,7 @@ class TriggerXAlarmScheduler {
      * @return `true` if the alarm was successfully scheduled, `false` otherwise (e.g., if
      *         permission is denied or an exception occurs).
      */
-    fun scheduleAlarm(
+    suspend fun scheduleAlarm(
         context: Context,
         triggerAtMillis: Long,
         type: String,
@@ -80,6 +82,7 @@ class TriggerXAlarmScheduler {
                 triggerAtMillis,
                 pendingIntent
             )
+            TriggerXAlarmIdManager.saveAlarmId(context, alarmId)
             LoggerConfig.logger.i("Alarm [$alarmId] scheduled for $triggerAtMillis")
             return true
         } catch (se: SecurityException) {
@@ -104,7 +107,7 @@ class TriggerXAlarmScheduler {
      * @return `true` if the alarm was successfully scheduled, `false` otherwise.
      * @see scheduleAlarm
      */
-    fun scheduleAlarm(
+    suspend fun scheduleAlarm(
         context: Context,
         triggerAtMillis: Long,
         alarmId: Int = (System.currentTimeMillis() % Int.MAX_VALUE).toInt()
@@ -121,7 +124,7 @@ class TriggerXAlarmScheduler {
      * @return A list of [Boolean] values, where each boolean indicates whether the
      *         corresponding alarm in the `events` list was successfully scheduled.
      */
-    fun scheduleMultipleAlarms(
+    suspend fun scheduleMultipleAlarms(
         context: Context,
         events: List<Pair<Int, Long>> // Pair<alarmId, triggerTime>
     ): List<Boolean> {
@@ -139,7 +142,7 @@ class TriggerXAlarmScheduler {
      * @return A list of [Boolean] values, where each boolean indicates whether the
      *         corresponding alarm in the `events` list was successfully scheduled.
      */
-    fun scheduleMultipleAlarms(
+    suspend fun scheduleMultipleAlarms(
         context: Context,
         type: String,
         events: List<Pair<Int, Long>> // Pair<alarmId, triggerTime>
@@ -159,7 +162,7 @@ class TriggerXAlarmScheduler {
      * @return A list of [Int] values, where each integer is an ID of an alarm that was
      *         successfully scheduled.
      */
-    fun scheduleAlarms(
+    suspend fun scheduleAlarms(
         context: Context,
         events: List<Pair<Int, Long>> // Pair<alarmId, triggerTime>
     ): List<Int> {
@@ -184,7 +187,7 @@ class TriggerXAlarmScheduler {
      * @param context The application context.
      * @param alarmId The unique integer identifier of the alarm to cancel.
      */
-    fun cancelAlarm(context: Context, alarmId: Int) {
+    suspend fun cancelAlarm(context: Context, alarmId: Int) {
         val intent = Intent(context, TriggerXAlarmReceiver::class.java).apply {
             action = TriggerXAlarmReceiver.ALARM_ACTION
         }
@@ -199,9 +202,46 @@ class TriggerXAlarmScheduler {
             val alarmManager = context.getSystemService(AlarmManager::class.java)
             alarmManager.cancel(pendingIntent)
             pendingIntent.cancel()
+            TriggerXAlarmIdManager.removeAlarmId(context, alarmId)
             LoggerConfig.logger.i("Alarm [$alarmId] cancelled.")
         } else {
             LoggerConfig.logger.i("Alarm [$alarmId] not found to cancel.")
+        }
+    }
+
+    /**
+     * Cancels all scheduled alarms.
+     *
+     * This method retrieves all stored alarm IDs and cancels each one.
+     *
+     * @param context The application context.
+     */
+    suspend fun cancelAllAlarms(context: Context) {
+        try {
+            val alarmIds = TriggerXAlarmIdManager.getAlarmIds(context)
+            var cancelledCount = 0
+            var failedCount = 0
+            alarmIds.forEach { idString ->
+                try {
+                    val id = idString.toIntOrNull()
+                    if (id != null) {
+                        cancelAlarm(context, id)
+                        cancelledCount++
+                    } else {
+                        LoggerConfig.logger.w("Invalid alarm ID format: $idString")
+                        failedCount++
+                    }
+                } catch (e: Exception) {
+                    LoggerConfig.logger.e("Failed to cancel alarm ID: $idString", e)
+                    failedCount++
+                }
+            }
+
+            TriggerXAlarmIdManager.clearAllAlarmIds(context)
+            LoggerConfig.logger.i("Cancelled $cancelledCount alarms. Failed: $failedCount")
+        } catch (e: Exception) {
+            LoggerConfig.logger.e("Failed to cancel all alarms", e)
+            throw e
         }
     }
 }
