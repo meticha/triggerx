@@ -25,7 +25,10 @@ internal object TriggerXAlarmIdManager {
     suspend fun removeAlarmId(context: Context, id: Int) {
         context.dataStore.edit { settings ->
             val currentIds = settings[KEY_ALARM_IDS] ?: return@edit
-            settings[KEY_ALARM_IDS] = currentIds - id.toString()
+            val idString = id.toString()
+            if (idString in currentIds) {
+                settings[KEY_ALARM_IDS] = currentIds - idString
+            }
         }
     }
 
