@@ -68,9 +68,9 @@ fun rememberAppPermissionState(): PermissionState {
         if (Build.MANUFACTURER.equals("Xiaomi", true)) {
             add(PermissionType.LOCK_SCREEN)
         }
-//        if (Build.MANUFACTURER.equals("oneplus", true)) {
-        add(PermissionType.OVERLAY_WHILE_BACKGROUND)
-//        }
+        if (Build.MANUFACTURER.equals("oneplus", true)) {
+            add(PermissionType.OVERLAY_WHILE_BACKGROUND)
+        }
     }
 
     val context = LocalContext.current
