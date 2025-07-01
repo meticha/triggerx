@@ -17,10 +17,12 @@ package com.meticha.triggerx.permission
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.meticha.triggerx.logger.LoggerConfig
+import kotlinx.coroutines.launch
 
 
 /**
@@ -40,12 +42,12 @@ internal fun PermissionLifeCycleCheckEffect(
     permissionState: PermissionState,
     lifecycleEvent: Lifecycle.Event = Lifecycle.Event.ON_RESUME,
 ) {
-
+    val core = rememberCoroutineScope()
     val observer = LifecycleEventObserver { _, event ->
         LoggerConfig.logger.d("Event: $event")
         if (event == lifecycleEvent) {
             if (permissionState.resumedFromSettings) {
-                permissionState.requestPermission()
+                core.launch { permissionState.requestPermission() }
                 permissionState.resumedFromSettings = false
             }
         }

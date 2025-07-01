@@ -27,12 +27,30 @@ import android.os.Build
 import android.provider.Settings
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.result.ActivityResult
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
+import com.meticha.triggerx.preference.TriggerXPermissionFlagManager
+import kotlinx.coroutines.flow.first
 import java.lang.ref.WeakReference
 import java.lang.reflect.Method
 
@@ -121,6 +139,11 @@ internal object AlarmPermissionManager {
         }
     }
 
+    suspend fun isOverlayBackgroundPermissionEnabled(context: Context): Boolean =
+        TriggerXPermissionFlagManager.isPermissionDialogAcknowledged(
+            context,
+            permissionType = PermissionType.OVERLAY_WHILE_BACKGROUND
+        ).first()
     /**
      * Checks if a specific [PermissionType] is granted.
      *
@@ -128,13 +151,14 @@ internal object AlarmPermissionManager {
      * @param permission The [PermissionType] to check.
      * @return `true` if the specified permission is granted, `false` otherwise.
      */
-    fun isGranted(context: Context, permission: PermissionType): Boolean {
+    suspend fun isGranted(context: Context, permission: PermissionType): Boolean {
         return when (permission) {
-            PermissionType.ALARM -> hasExactAlarmPermission(context)
-            PermissionType.OVERLAY -> hasOverlayPermission(context)
-            PermissionType.BATTERY_OPTIMIZATION -> hasBatteryOptimizationPermission(context)
-            PermissionType.LOCK_SCREEN -> isShowOnLockScreenPermissionEnable(context)
-            PermissionType.NOTIFICATION -> isNotificationPermissionEnabled(context)
+            PermissionType.ALARM                    -> hasExactAlarmPermission(context)
+            PermissionType.OVERLAY                  -> hasOverlayPermission(context)
+            PermissionType.BATTERY_OPTIMIZATION     -> hasBatteryOptimizationPermission(context)
+            PermissionType.LOCK_SCREEN              -> isShowOnLockScreenPermissionEnable(context)
+            PermissionType.NOTIFICATION             -> isNotificationPermissionEnabled(context)
+            PermissionType.OVERLAY_WHILE_BACKGROUND -> isOverlayBackgroundPermissionEnabled(context)
         }
     }
 
@@ -148,15 +172,15 @@ internal object AlarmPermissionManager {
      *         Returns an empty Intent for [PermissionType.NOTIFICATION] on pre-Tiramisu devices
      *         as no explicit system settings intent is typically used.
      */
-    fun createPermissionIntent(context: Context, permissionType: PermissionType): Intent {
+    fun createPermissionIntent(context: Context, permissionType: PermissionType): Intent? {
         when (permissionType) {
-            PermissionType.ALARM -> {
+            PermissionType.ALARM                -> {
                 return Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM).apply {
                     data = "package:${context.packageName}".toUri()
                 }
             }
 
-            PermissionType.OVERLAY -> {
+            PermissionType.OVERLAY              -> {
                 return Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION).apply {
                     data = "package:${context.packageName}".toUri()
                 }
@@ -168,7 +192,7 @@ internal object AlarmPermissionManager {
                 }
             }
 
-            PermissionType.LOCK_SCREEN -> {
+            PermissionType.LOCK_SCREEN          -> {
                 // This intent is specific to MIUI and might not work on other devices.
                 return Intent("miui.intent.action.APP_PERM_EDITOR").apply {
                     setClassName(
@@ -179,7 +203,7 @@ internal object AlarmPermissionManager {
                 }
             }
 
-            PermissionType.NOTIFICATION -> {
+            PermissionType.NOTIFICATION         -> {
                 return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                     Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
                         putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
@@ -187,6 +211,10 @@ internal object AlarmPermissionManager {
                 } else {
                     Intent() // No standard intent pre-Tiramisu, permission granted by default.
                 }
+            }
+
+            else                                -> {
+                return null
             }
         }
     }
@@ -196,7 +224,8 @@ internal object AlarmPermissionManager {
  * Represents the different types of permissions that the TriggerX library
  * may need to check or request.
  */
-enum class PermissionType {
+
+enum class PermissionType(val isManualPermissionType: Boolean = false) {
     /** Permission to schedule exact alarms (Android S+). */
     ALARM,
 
@@ -210,8 +239,58 @@ enum class PermissionType {
     LOCK_SCREEN,
 
     /** Permission to post notifications (Android Tiramisu+). */
-    NOTIFICATION
+    NOTIFICATION,
+
+    /** A flag to indicate a one-time dialog for guiding users to enable background pop-ups on certain devices. */
+    OVERLAY_WHILE_BACKGROUND(isManualPermissionType = true),
+
 }
+
+@Composable
+private fun OverlayPermissionGuidanceDialog(
+    appName: String,
+    onUnderstoodClick: () -> Unit,
+) {
+    MaterialTheme { // Using a default MaterialTheme wrapper
+        Card(
+            shape = RoundedCornerShape(16.dp),
+            modifier = Modifier.padding(16.dp), // Outer padding for the card itself in relation to dialog window
+            elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+        ) {
+            Column(
+                modifier = Modifier
+                    .padding(24.dp) // Inner padding for the content
+                    .fillMaxWidth()
+            ) {
+                Text(
+                    text = "Important: Enable Background Pop-ups",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = "For alarms to reliably appear when the app is in the background, " +
+                           "'$appName' needs an additional permission on some phones (like Xiaomi, Oppo, Vivo, etc.)." +
+                           "Please go to your phone's Settings -> Apps -> Manage Apps (or similar) -> Find '$appName' -> " +
+                           "Other permissions (or App permissions) -> And ensure 'Display pop-up windows while running in the background' " +
+                           "(or a similar sounding option like 'Start in background') is ENABLED." +
+                           "This reminder is shown only once if you click 'Understood'.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Spacer(modifier = Modifier.height(24.dp))
+                Button(
+                    onClick = onUnderstoodClick,
+                    modifier = Modifier.align(Alignment.End)
+                ) {
+                    Text("Understood")
+                }
+            }
+        }
+    }
+}
+
 
 /**
  * Manages the state of permission requests and their UI flows, particularly for a list
@@ -245,6 +324,7 @@ class PermissionState(
      * Set to `true` to indicate a rationale is needed before re-requesting a denied permission.
      */
     internal var showRationalePopUp by mutableStateOf(false)
+    internal var showPermissionGuidanceDialog by mutableStateOf(false)
 
     /**
      * Flag to indicate if the app has recently resumed from a system settings screen
@@ -274,7 +354,7 @@ class PermissionState(
      * @return `true` if all required permissions are granted, `false` otherwise.
      *         This also updates an internal state flag.
      */
-    fun allRequiredGranted(): Boolean {
+    suspend fun allRequiredGranted(): Boolean {
         isRequiredPermissionGranted = allPermissions
             .all { isGranted(it) }
         return isRequiredPermissionGranted
@@ -289,7 +369,7 @@ class PermissionState(
      * @throws IllegalStateException if [contextRef] has not been initialized.
      * @throws NullPointerException if [contextRef.get()] returns null after initialization.
      */
-    fun isGranted(permission: PermissionType): Boolean {
+    suspend fun isGranted(permission: PermissionType): Boolean {
         val context =
             requireNotNull(contextRef.get()) { "Context not available. Ensure contextRef is set." }
         return AlarmPermissionManager.isGranted(context, permission)
@@ -299,24 +379,31 @@ class PermissionState(
      * Starts or continues the permission request flow.
      * It processes the permissions from the `pendingPermissions` queue one by one.
      * If a permission is already granted, it moves to the next.
-     * Otherwise, it launches the appropriate system intent using the [launcher].
+     * Otherwise, it launches the appropriate system intent using the [launcher] or shows a guiding dialog.
      * Requires [contextRef] and [launcher] to be initialized.
      */
-    fun requestPermission() {
+    suspend fun requestPermission() {
         if (pendingPermissions.isNotEmpty()) {
             currentPermission = pendingPermissions.first()
             currentPermission?.let { permission ->
                 if (isGranted(permission)) {
-                    next() // Permission already granted, move to next
+                    next() // Permission already granted or dialog already shown, move to next
                 } else {
                     val context =
                         requireNotNull(contextRef.get()) { "Context not available for launching intent." }
-                    launcher?.launch(
-                        AlarmPermissionManager.createPermissionIntent(
+                    if (permission.isManualPermissionType) {
+                        showPermissionGuidanceDialog = true
+                    } else {
+                        val intent = AlarmPermissionManager.createPermissionIntent(
                             context,
                             permission
                         )
-                    )
+                        if (intent != null) {
+                            launcher?.launch(intent)
+                        } else {
+                            next()
+                        }
+                    }
                 }
             }
         } else {
@@ -324,15 +411,19 @@ class PermissionState(
         }
     }
 
+
     /**
      * Moves to the next permission in the `pendingPermissions` queue
      * and then attempts to request it.
-     * This is typically called after a permission request has been handled (granted or denied).
+     * This is typically called after a permission request has been handled (granted or denied),
+     * or after the user returns from a settings screen.
      */
-    internal fun next() {
+    internal suspend fun next() {
         if (pendingPermissions.isNotEmpty()) {
             pendingPermissions.removeAt(0)
         }
-        requestPermission() // Attempt to process the next permission, or clear currentPermission if queue is empty
+        // After removing, immediately try to request the next one (or finish if empty)
+        // This is important because requestPermission() itself checks isGranted first.
+        requestPermission()
     }
 }

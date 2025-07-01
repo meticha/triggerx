@@ -21,6 +21,7 @@
 
     <!-- Permissions for scheduling exact alarms -->
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
 
     <application
         android:name=".TriggerXApplication"

@@ -24,19 +24,22 @@ import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.meticha.triggerx.permission.rememberAppPermissionState
+import kotlinx.coroutines.launch
 
 @Composable
 fun HomeScreen(
-    viewModel: HomeViewModel = hiltViewModel()
+    viewModel: HomeViewModel = hiltViewModel(),
 ) {
     val context = LocalContext.current
     val permissionState = rememberAppPermissionState()
+    val coroutines = rememberCoroutineScope()
 
 
     Scaffold { paddingValues ->
@@ -50,17 +53,19 @@ fun HomeScreen(
         ) {
             ElevatedButton(
                 onClick = {
-                    if (permissionState.allRequiredGranted()) {
-                        Toast.makeText(
-                            context,
-                            "Scheduled for 1 minute. Now you can close the App and chill",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                        viewModel.scheduleOneMinuteAlarm(
-                            context
-                        )
-                    } else {
-                        permissionState.requestPermission()
+                    coroutines.launch {
+                        if (permissionState.allRequiredGranted()) {
+                            Toast.makeText(
+                                context,
+                                "Scheduled for 1 minute. Now you can close the App and chill",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            viewModel.scheduleOneMinuteAlarm(
+                                context
+                            )
+                        } else {
+                            permissionState.requestPermission()
+                        }
                     }
                 }
             ) {

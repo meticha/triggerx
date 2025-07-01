@@ -18,8 +18,10 @@ package com.meticha.triggerxexample.home
 import android.content.Context
 import android.util.Log
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.meticha.triggerx.TriggerXAlarmScheduler
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
 import java.util.Calendar
 import javax.inject.Inject
 
@@ -32,17 +34,24 @@ class HomeViewModel @Inject constructor() : ViewModel() {
 
     private val appAlarmManager: TriggerXAlarmScheduler = TriggerXAlarmScheduler()
 
-    fun scheduleOneMinuteAlarm(context: Context): Boolean {
+    fun scheduleOneMinuteAlarm(context: Context) {
         val triggerTime = Calendar.getInstance().apply {
             add(Calendar.MINUTE, 1)
         }.timeInMillis
 
         Log.i(TAG, "Attempting to schedule alarm for 1 minute from now ($triggerTime)")
-        return appAlarmManager.scheduleAlarm(context, triggerTime, "MEETING", 1)
+        viewModelScope.launch {
+            appAlarmManager.scheduleAlarm(
+                context,
+                triggerTime,
+                "MEETING",
+                1
+            )
+        }
 
     }
 
     fun cancelCurrentAlarm(context: Context, id: Int) {
-        appAlarmManager.cancelAlarm(context, id)
+        viewModelScope.launch { appAlarmManager.cancelAlarm(context, id) }
     }
 }
