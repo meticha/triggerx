@@ -27,8 +27,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.window.DialogProperties
 import com.meticha.triggerx.permission.AlarmPermissionManager.isGranted
-import com.meticha.triggerx.preference.TriggerXPermissionFlagManager
+import com.meticha.triggerx.preference.TriggerXManualPermissionStatusManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.lang.ref.WeakReference
@@ -157,7 +158,7 @@ private fun ShowPermissionGuidanceDialog(
                 onDismiss = {
                     permissionState.showPermissionGuidanceDialog = false
                     coroutineScope.launch {
-                        TriggerXPermissionFlagManager.savePermissionDialogResponse(
+                        TriggerXManualPermissionStatusManager.savePermissionDialogResponse(
                             context,
                             permissionType = permission,
                             acknowledged = false
@@ -167,7 +168,7 @@ private fun ShowPermissionGuidanceDialog(
                 onConfirm = {
                     permissionState.showPermissionGuidanceDialog = false
                     coroutineScope.launch {
-                        TriggerXPermissionFlagManager.savePermissionDialogResponse(
+                        TriggerXManualPermissionStatusManager.savePermissionDialogResponse(
                             context,
                             permissionType = permission,
                             acknowledged = true
@@ -197,6 +198,10 @@ internal fun ShowManualPermissionDialog(
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
+        properties = DialogProperties(
+            dismissOnClickOutside = false,
+            dismissOnBackPress = true,
+        ),
         title = { Text("Permission Required") },
         text = {
             Text(
@@ -206,6 +211,11 @@ internal fun ShowManualPermissionDialog(
         confirmButton = {
             Button(onClick = onConfirm) {
                 Text("Acknowledge")
+            }
+        },
+        dismissButton = {
+            Button(onClick = onDismiss) {
+                Text("Later")
             }
         }
     )

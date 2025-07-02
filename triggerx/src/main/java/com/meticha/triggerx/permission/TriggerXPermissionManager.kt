@@ -27,29 +27,13 @@ import android.os.Build
 import android.provider.Settings
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.result.ActivityResult
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
-import com.meticha.triggerx.preference.TriggerXPermissionFlagManager
+import com.meticha.triggerx.preference.TriggerXManualPermissionStatusManager
 import kotlinx.coroutines.flow.first
 import java.lang.ref.WeakReference
 import java.lang.reflect.Method
@@ -140,7 +124,7 @@ internal object AlarmPermissionManager {
     }
 
     suspend fun isOverlayBackgroundPermissionEnabled(context: Context): Boolean =
-        TriggerXPermissionFlagManager.isPermissionDialogAcknowledged(
+        TriggerXManualPermissionStatusManager.isPermissionDialogAcknowledged(
             context,
             permissionType = PermissionType.OVERLAY_WHILE_BACKGROUND
         ).first()
@@ -245,52 +229,6 @@ enum class PermissionType(val isManualPermissionType: Boolean = false) {
     OVERLAY_WHILE_BACKGROUND(isManualPermissionType = true),
 
 }
-
-@Composable
-private fun OverlayPermissionGuidanceDialog(
-    appName: String,
-    onUnderstoodClick: () -> Unit,
-) {
-    MaterialTheme { // Using a default MaterialTheme wrapper
-        Card(
-            shape = RoundedCornerShape(16.dp),
-            modifier = Modifier.padding(16.dp), // Outer padding for the card itself in relation to dialog window
-            elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
-        ) {
-            Column(
-                modifier = Modifier
-                    .padding(24.dp) // Inner padding for the content
-                    .fillMaxWidth()
-            ) {
-                Text(
-                    text = "Important: Enable Background Pop-ups",
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-                Text(
-                    text = "For alarms to reliably appear when the app is in the background, " +
-                           "'$appName' needs an additional permission on some phones (like Xiaomi, Oppo, Vivo, etc.)." +
-                           "Please go to your phone's Settings -> Apps -> Manage Apps (or similar) -> Find '$appName' -> " +
-                           "Other permissions (or App permissions) -> And ensure 'Display pop-up windows while running in the background' " +
-                           "(or a similar sounding option like 'Start in background') is ENABLED." +
-                           "This reminder is shown only once if you click 'Understood'.",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Spacer(modifier = Modifier.height(24.dp))
-                Button(
-                    onClick = onUnderstoodClick,
-                    modifier = Modifier.align(Alignment.End)
-                ) {
-                    Text("Understood")
-                }
-            }
-        }
-    }
-}
-
 
 /**
  * Manages the state of permission requests and their UI flows, particularly for a list
