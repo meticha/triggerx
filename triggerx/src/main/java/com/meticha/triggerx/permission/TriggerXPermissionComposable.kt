@@ -16,6 +16,7 @@
 package com.meticha.triggerx.permission
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -24,8 +25,13 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.window.DialogProperties
 import com.meticha.triggerx.permission.AlarmPermissionManager.isGranted
+import com.meticha.triggerx.preference.TriggerXManualPermissionStatusManager
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import java.lang.ref.WeakReference
 
 
@@ -56,21 +62,25 @@ fun rememberAppPermissionState(): PermissionState {
             listOf(
                 PermissionType.ALARM,
                 PermissionType.BATTERY_OPTIMIZATION,
-                PermissionType.NOTIFICATION
+                PermissionType.NOTIFICATION,
+                PermissionType.OVERLAY,
             )
         )
         if (Build.MANUFACTURER.equals("Xiaomi", true)) {
             add(PermissionType.LOCK_SCREEN)
+        }
+        if (Build.MANUFACTURER.equals("oneplus", true)) {
+            add(PermissionType.OVERLAY_WHILE_BACKGROUND)
         }
     }
 
     val context = LocalContext.current
 
     val permissionState = remember(permissions) { PermissionState(permissions) }
+    val coroutineScope = rememberCoroutineScope()
 
     // Provide context access through composable scope
     permissionState.contextRef = WeakReference(context)
-
 
     // Handle lifecycle events
     PermissionLifeCycleCheckEffect(
@@ -81,39 +91,97 @@ fun rememberAppPermissionState(): PermissionState {
     permissionState.launcher = rememberLauncherForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
-        when {
-            isGranted(context, permissionState.currentPermission!!) -> {
-                permissionState.allRequiredGranted()
-                permissionState.next()
-            }
+        coroutineScope.launch {
+            when {
+                isGranted(context, permissionState.currentPermission!!) -> {
+                    permissionState.allRequiredGranted()
+                    permissionState.next()
+                }
 
-            else -> handlePermissionDenial(
-                permissionState
-            )
+                else                                                    -> handlePermissionDenial(
+                    permissionState
+                )
+            }
         }
     }
 
     // Display permission rationale popup if needed
     permissionState.currentPermission?.let { permission ->
         when {
-            permissionState.showRationalePopUp -> {
+            permission.isManualPermissionType && permissionState.showPermissionGuidanceDialog -> {
+                ShowPermissionGuidanceDialog(
+                    permission = permission,
+                    permissionState = permissionState,
+                    context = context,
+                    coroutineScope = coroutineScope
+                )
+            }
+
+            permissionState.showRationalePopUp                                                -> {
                 ShowPopup(
                     message = "Permissions are required to proceed further",
                     onConfirm = {
                         permissionState.showRationalePopUp = false
-                        permissionState.requestPermission()
+                        coroutineScope.launch { permissionState.requestPermission() }
                     },
                     onDismiss = {
                         permissionState.showRationalePopUp = false
                     }
                 )
             }
+
         }
     }
+
 
     return permissionState
 }
 
+@Composable
+private fun ShowPermissionGuidanceDialog(
+    context: Context,
+    permission: PermissionType,
+    permissionState: PermissionState,
+    coroutineScope: CoroutineScope,
+) {
+    when (permission) {
+        PermissionType.OVERLAY_WHILE_BACKGROUND -> {
+            val appName =
+                remember { context.applicationInfo.loadLabel(context.packageManager).toString() }
+            ShowManualPermissionDialog(
+                message = "For alarms to reliably appear when the app is in the background, " +
+                          "'$appName' needs an additional permission on some phones (like Xiaomi, Oppo, Vivo, etc.).\n\n" +
+                          "Please go to your phone's Settings -> Apps -> Manage Apps (or similar) -> Find '$appName' -> " +
+                          "Other permissions (or App permissions) -> And ensure 'Display pop-up windows while running in the background' " +
+                          "(or a similar sounding option like 'Start in background') is ENABLED.\n\n" +
+                          "This reminder is shown once if you click 'Acknowledge'.",
+                onDismiss = {
+                    permissionState.showPermissionGuidanceDialog = false
+                    coroutineScope.launch {
+                        TriggerXManualPermissionStatusManager.savePermissionDialogResponse(
+                            context,
+                            permissionType = permission,
+                            acknowledged = false
+                        )
+                    }
+                },
+                onConfirm = {
+                    permissionState.showPermissionGuidanceDialog = false
+                    coroutineScope.launch {
+                        TriggerXManualPermissionStatusManager.savePermissionDialogResponse(
+                            context,
+                            permissionType = permission,
+                            acknowledged = true
+                        )
+                        permissionState.next()
+                    }
+                },
+            )
+        }
+
+        else                                    -> {}
+    }
+}
 
 /**
  * Handles permission denial, showing appropriate UI based on denial context
@@ -122,6 +190,36 @@ private fun handlePermissionDenial(permissionState: PermissionState) {
     permissionState.showRationalePopUp = true
 }
 
+@Composable
+internal fun ShowManualPermissionDialog(
+    message: String,
+    onDismiss: () -> Unit,
+    onConfirm: () -> Unit,
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(
+            dismissOnClickOutside = false,
+            dismissOnBackPress = true,
+        ),
+        title = { Text("Permission Required") },
+        text = {
+            Text(
+                message
+            )
+        },
+        confirmButton = {
+            Button(onClick = onConfirm) {
+                Text("Acknowledge")
+            }
+        },
+        dismissButton = {
+            Button(onClick = onDismiss) {
+                Text("Later")
+            }
+        }
+    )
+}
 
 
 /**
@@ -165,3 +263,4 @@ internal fun ShowPopup(
         }
     )
 }
+
