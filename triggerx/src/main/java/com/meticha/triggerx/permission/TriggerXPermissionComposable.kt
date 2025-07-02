@@ -154,7 +154,7 @@ private fun ShowPermissionGuidanceDialog(
                           "Please go to your phone's Settings -> Apps -> Manage Apps (or similar) -> Find '$appName' -> " +
                           "Other permissions (or App permissions) -> And ensure 'Display pop-up windows while running in the background' " +
                           "(or a similar sounding option like 'Start in background') is ENABLED.\n\n" +
-                          "This reminder is shown once if you click 'Understood'.",
+                          "This reminder is shown once if you click 'Acknowledge'.",
                 onDismiss = {
                     permissionState.showPermissionGuidanceDialog = false
                     coroutineScope.launch {
