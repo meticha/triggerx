@@ -33,10 +33,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
+import com.meticha.triggerx.logger.LoggerConfig
 import com.meticha.triggerx.preference.TriggerXManualPermissionStatusManager
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.first
 import java.lang.ref.WeakReference
 import java.lang.reflect.Method
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 
 /**
  * Manages permission checks and Intent creation for various Android permissions
@@ -128,6 +132,7 @@ internal object AlarmPermissionManager {
             context,
             permissionType = PermissionType.OVERLAY_WHILE_BACKGROUND
         ).first()
+
     /**
      * Checks if a specific [PermissionType] is granted.
      *
@@ -159,8 +164,12 @@ internal object AlarmPermissionManager {
     fun createPermissionIntent(context: Context, permissionType: PermissionType): Intent? {
         when (permissionType) {
             PermissionType.ALARM                -> {
-                return Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM).apply {
-                    data = "package:${context.packageName}".toUri()
+                return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM).apply {
+                        data = "package:${context.packageName}".toUri()
+                    }
+                } else {
+                    null
                 }
             }
 
@@ -292,10 +301,12 @@ class PermissionState(
      * @return `true` if all required permissions are granted, `false` otherwise.
      *         This also updates an internal state flag.
      */
-    suspend fun allRequiredGranted(): Boolean {
+    suspend fun allRequiredGranted(): Boolean = coroutineScope {
         isRequiredPermissionGranted = allPermissions
-            .all { isGranted(it) }
-        return isRequiredPermissionGranted
+            .map { async { isGranted(it) } }
+            .awaitAll()
+            .all { it }
+        isRequiredPermissionGranted
     }
 
     /**
@@ -339,6 +350,7 @@ class PermissionState(
                         if (intent != null) {
                             launcher?.launch(intent)
                         } else {
+                            LoggerConfig.logger.e("Failed to create intent for permission: $permission")
                             next()
                         }
                     }
