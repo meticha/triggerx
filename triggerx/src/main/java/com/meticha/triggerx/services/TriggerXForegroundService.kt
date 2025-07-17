@@ -182,7 +182,7 @@ internal class TriggerXForegroundService : Service() {
             channelName,
             NotificationManager.IMPORTANCE_DEFAULT
         ).apply {
-            description = "Notifications for TriggerX alarms"
+            description = "Notifications for scheduling alarms"
         }
         val nm = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         nm.createNotificationChannel(channel)

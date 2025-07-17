@@ -142,11 +142,11 @@ internal object AlarmPermissionManager {
      */
     suspend fun isGranted(context: Context, permission: PermissionType): Boolean {
         return when (permission) {
-            PermissionType.ALARM                    -> hasExactAlarmPermission(context)
-            PermissionType.OVERLAY                  -> hasOverlayPermission(context)
-            PermissionType.BATTERY_OPTIMIZATION     -> hasBatteryOptimizationPermission(context)
-            PermissionType.LOCK_SCREEN              -> isShowOnLockScreenPermissionEnable(context)
-            PermissionType.NOTIFICATION             -> isNotificationPermissionEnabled(context)
+            PermissionType.ALARM -> hasExactAlarmPermission(context)
+            PermissionType.OVERLAY -> hasOverlayPermission(context)
+            PermissionType.BATTERY_OPTIMIZATION -> hasBatteryOptimizationPermission(context)
+            PermissionType.LOCK_SCREEN -> isShowOnLockScreenPermissionEnable(context)
+            PermissionType.NOTIFICATION -> isNotificationPermissionEnabled(context)
             PermissionType.OVERLAY_WHILE_BACKGROUND -> isOverlayBackgroundPermissionEnabled(context)
         }
     }
@@ -163,7 +163,7 @@ internal object AlarmPermissionManager {
      */
     fun createPermissionIntent(context: Context, permissionType: PermissionType): Intent? {
         when (permissionType) {
-            PermissionType.ALARM                -> {
+            PermissionType.ALARM -> {
                 return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                     Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM).apply {
                         data = "package:${context.packageName}".toUri()
@@ -173,7 +173,7 @@ internal object AlarmPermissionManager {
                 }
             }
 
-            PermissionType.OVERLAY              -> {
+            PermissionType.OVERLAY -> {
                 return Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION).apply {
                     data = "package:${context.packageName}".toUri()
                 }
@@ -185,7 +185,7 @@ internal object AlarmPermissionManager {
                 }
             }
 
-            PermissionType.LOCK_SCREEN          -> {
+            PermissionType.LOCK_SCREEN -> {
                 // This intent is specific to MIUI and might not work on other devices.
                 return Intent("miui.intent.action.APP_PERM_EDITOR").apply {
                     setClassName(
@@ -196,7 +196,7 @@ internal object AlarmPermissionManager {
                 }
             }
 
-            PermissionType.NOTIFICATION         -> {
+            PermissionType.NOTIFICATION -> {
                 return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                     Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
                         putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
@@ -206,7 +206,7 @@ internal object AlarmPermissionManager {
                 }
             }
 
-            else                                -> {
+            else -> {
                 return null
             }
         }
@@ -240,7 +240,7 @@ enum class PermissionType(val isManualPermissionType: Boolean = false) {
 }
 
 /**
- * Manages the state of permission requests and their UI flows, particularly for a list
+ * Manages the state of permission requests, and their UI flows, particularly for a list
  * of required permissions. This class is typically used in conjunction with Jetpack Compose.
  *
  * @param permissionList The initial list of [PermissionType]s that this state manager will handle.

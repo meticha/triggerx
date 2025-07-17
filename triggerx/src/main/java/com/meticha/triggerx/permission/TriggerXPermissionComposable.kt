@@ -98,9 +98,7 @@ fun rememberAppPermissionState(): PermissionState {
                     permissionState.next()
                 }
 
-                else                                                    -> handlePermissionDenial(
-                    permissionState
-                )
+                else -> handlePermissionDenial(permissionState)
             }
         }
     }
@@ -117,16 +115,14 @@ fun rememberAppPermissionState(): PermissionState {
                 )
             }
 
-            permissionState.showRationalePopUp                                                -> {
+            permissionState.showRationalePopUp -> {
                 ShowPopup(
                     message = "Permissions are required to proceed further",
                     onConfirm = {
                         permissionState.showRationalePopUp = false
                         coroutineScope.launch { permissionState.requestPermission() }
                     },
-                    onDismiss = {
-                        permissionState.showRationalePopUp = false
-                    }
+                    onDismiss = { permissionState.showRationalePopUp = false }
                 )
             }
 
@@ -150,11 +146,11 @@ private fun ShowPermissionGuidanceDialog(
                 remember { context.applicationInfo.loadLabel(context.packageManager).toString() }
             ShowManualPermissionDialog(
                 message = "For alarms to reliably appear when the app is in the background, " +
-                          "'$appName' needs an additional permission on some phones (like Xiaomi, Oppo, Vivo, etc.).\n\n" +
-                          "Please go to your phone's Settings -> Apps -> Manage Apps (or similar) -> Find '$appName' -> " +
-                          "Other permissions (or App permissions) -> And ensure 'Display pop-up windows while running in the background' " +
-                          "(or a similar sounding option like 'Start in background') is ENABLED.\n\n" +
-                          "This reminder is shown once if you click 'Acknowledge'.",
+                        "'$appName' needs an additional permission on some phones (like Xiaomi, Oppo, Vivo, etc.).\n\n" +
+                        "Please go to your phone's Settings -> Apps -> Manage Apps (or similar) -> Find '$appName' -> " +
+                        "Other permissions (or App permissions) -> And ensure 'Display pop-up windows while running in the background' " +
+                        "(or a similar sounding option like 'Start in background') is ENABLED.\n\n" +
+                        "This reminder is shown once if you click 'Acknowledge'.",
                 onDismiss = {
                     permissionState.showPermissionGuidanceDialog = false
                     coroutineScope.launch {
@@ -179,7 +175,7 @@ private fun ShowPermissionGuidanceDialog(
             )
         }
 
-        else                                    -> {}
+        else -> {}
     }
 }
 
@@ -229,8 +225,8 @@ internal fun ShowManualPermissionDialog(
  * or to inform them about the necessity of a permission if it has been denied.
  *
  * @param message The main message to be displayed in the dialog.
- * @param onConfirm A lambda function to be executed when the confirm button (e.g., "Grant") is clicked.
- * @param onDismiss A lambda function to be executed when the dismiss button (e.g., "Cancel") is clicked
+ * @param onConfirm A lambda function to be executed when the confirmation button (e.g., "Grant") is clicked.
+ * @param onDismiss A lambda function to be executed when the dismissed button (e.g., "Cancel") is clicked
  *                  or when the dialog is dismissed by tapping outside or pressing the back button.
  */
 @Composable
@@ -242,7 +238,7 @@ internal fun ShowPopup(
     AlertDialog(
         onDismissRequest = { onDismiss() },
         title = {
-            Text(text = "Permission")
+            Text(text = "Permission is required")
         },
         text = {
             Text(text = message)
@@ -258,7 +254,7 @@ internal fun ShowPopup(
             Button(onClick = {
                 onConfirm()
             }) {
-                Text(text = "Grant")
+                Text(text = "Grant Permission")
             }
         }
     )
