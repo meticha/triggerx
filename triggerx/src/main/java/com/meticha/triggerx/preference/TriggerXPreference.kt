@@ -56,7 +56,7 @@ internal object TriggerXPreferences {
 
     /**
      * Saves the provided [TriggerXConfig] to DataStore.
-     * This includes the activity class name, and optionally the notification title and message.
+     * This includes the activity class name and optionally the notification title and message.
      *
      * @param context The [Context] used to access DataStore.
      * @param config The [TriggerXConfig] instance containing the settings to save.

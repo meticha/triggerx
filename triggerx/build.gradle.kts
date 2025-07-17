@@ -18,7 +18,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.spotless)
-    id("com.vanniktech.maven.publish") version "0.32.0"
+    id("com.vanniktech.maven.publish") version "0.34.0"
 }
 
 android {
@@ -92,4 +92,41 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+}
+
+mavenPublishing {
+    publishToMavenCentral()
+
+    signAllPublications()
+
+
+    coordinates("com.meticha", "triggerx", "0.0.9")
+
+    pom {
+        name = "triggerx"
+        description =
+            "A lightweight Android library for scheduling exact alarms with custom UIs. No foreground services or wake-lock hassle."
+        inceptionYear = "2025"
+        version = "0.0.9"
+        url = "https://github.com/meticha/triggerx.git"
+        licenses {
+            license {
+                name = "The Apache License, Version 2.0"
+                url = "https://www.apache.org/licenses/LICENSE-2.0.txt"
+                distribution = "https://www.apache.org/licenses/LICENSE-2.0.txt"
+            }
+        }
+        developers {
+            developer {
+                id = "Cavin"
+                name = "Cavin Macwan"
+                url = "https://github.com/cavin-macwan/"
+            }
+        }
+        scm {
+            url = "https://github.com/meticha/triggerx.git"
+            connection = "scm:git:git://github.com/meticha/triggerx.git"
+            developerConnection = "scm:git:ssh://git@github.com/meticha/triggerx.git"
+        }
+    }
 }

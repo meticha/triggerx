@@ -26,7 +26,7 @@ import kotlinx.coroutines.launch
 
 
 /**
- * A Composable side-effect that observes lifecycle events to re-evaluate and request permissions.
+ * A Composable side effect that observes lifecycle events to re-evaluate and request permissions.
  *
  * This is primarily used to detect when the user returns to the app after potentially changing
  * permissions in the system settings. When the specified [lifecycleEvent] (defaulting to `ON_RESUME`)
@@ -35,7 +35,7 @@ import kotlinx.coroutines.launch
  *
  * @param permissionState The current [PermissionState] to be monitored and updated.
  * @param lifecycleEvent The [Lifecycle.Event] to observe for triggering the permission check.
- *                       Defaults to [Lifecycle.Event.ON_RESUME].
+ * Defaults to [Lifecycle.Event.ON_RESUME].
  */
 @Composable
 internal fun PermissionLifeCycleCheckEffect(

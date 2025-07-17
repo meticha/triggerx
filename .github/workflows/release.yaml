@@ -7,7 +7,7 @@ on:
       - main
 
 env:
-  VERSION_NAME: 0.0.8  # Update this value for each release
+  VERSION_NAME: 0.0.9  # Update this value for each release
 
 jobs:
   release:
@@ -16,7 +16,7 @@ jobs:
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           token: ${{ secrets.TOKEN }}
           persist-credentials: true
