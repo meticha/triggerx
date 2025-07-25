@@ -105,13 +105,14 @@ internal class TriggerXForegroundService : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         val notification = buildNotification()
         startForeground(NOTIFICATION_ID, notification)
-        if (!TriggerX.shouldShowAlarmActivityWhenAppIsActive() && isAppInForeground()) {
+
+        // Acquire a wake lock to ensure the device doesn't sleep while processing the alarm
+        val powerManager = getSystemService(PowerManager::class.java)
+        if (!TriggerX.shouldShowAlarmActivityWhenAppIsActive() && powerManager.isInteractive) {
             stopSelf()
             return START_NOT_STICKY
         }
 
-        // Acquire a wake lock to ensure the device doesn't sleep while processing the alarm
-        val powerManager = getSystemService(PowerManager::class.java)
         val wakeLock = powerManager.newWakeLock(
             PowerManager.PARTIAL_WAKE_LOCK,
             "triggerx::AlarmWakeLock"
@@ -222,19 +223,4 @@ internal class TriggerXForegroundService : Service() {
             ?: TriggerXPreferences.load(context)?.activityClass
             ?: DefaultTriggerActivity::class.java
     }
-}
-
-fun Context.isAppInForeground(): Boolean {
-
-    val application = applicationContext
-    val activityManager = getSystemService(ActivityManager::class.java)
-    val runningProcessList = activityManager.runningAppProcesses
-
-    if (runningProcessList != null) {
-        val myApp = runningProcessList.find { it.processName == application.packageName }
-        ActivityManager.getMyMemoryState(myApp)
-        return myApp?.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND
-    }
-
-    return false
 }
