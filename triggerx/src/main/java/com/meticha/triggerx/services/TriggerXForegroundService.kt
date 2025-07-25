@@ -16,6 +16,7 @@
 package com.meticha.triggerx.services
 
 import android.app.Activity
+import android.app.ActivityManager
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -25,6 +26,7 @@ import android.content.Intent
 import android.os.IBinder
 import android.os.PowerManager
 import androidx.core.app.NotificationCompat
+import androidx.lifecycle.Lifecycle
 import com.meticha.triggerx.DefaultTriggerActivity
 import com.meticha.triggerx.dsl.TriggerX
 import com.meticha.triggerx.logger.LoggerConfig
@@ -83,6 +85,7 @@ internal class TriggerXForegroundService : Service() {
      *
      * It performs the following steps:
      * - Builds and displays a foreground notification.
+     * - Checks if the user wants to show the activity if their App is open or not
      * - Acquires a partial wake lock.
      * - Processes the incoming alarm intent:
      *     - Extracts alarm ID and type.
@@ -100,9 +103,12 @@ internal class TriggerXForegroundService : Service() {
      *         automatically restarted.
      */
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-
         val notification = buildNotification()
         startForeground(NOTIFICATION_ID, notification)
+        if (!TriggerX.shouldShowAlarmActivityWhenAppIsActive() && isAppInForeground()) {
+            stopSelf()
+            return START_NOT_STICKY
+        }
 
         // Acquire a wake lock to ensure the device doesn't sleep while processing the alarm
         val powerManager = getSystemService(PowerManager::class.java)
@@ -216,4 +222,19 @@ internal class TriggerXForegroundService : Service() {
             ?: TriggerXPreferences.load(context)?.activityClass
             ?: DefaultTriggerActivity::class.java
     }
+}
+
+fun Context.isAppInForeground(): Boolean {
+
+    val application = applicationContext
+    val activityManager = getSystemService(ActivityManager::class.java)
+    val runningProcessList = activityManager.runningAppProcesses
+
+    if (runningProcessList != null) {
+        val myApp = runningProcessList.find { it.processName == application.packageName }
+        ActivityManager.getMyMemoryState(myApp)
+        return myApp?.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND
+    }
+
+    return false
 }
