@@ -19,6 +19,7 @@ import android.app.Activity
 import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
@@ -55,6 +56,12 @@ internal object TriggerXPreferences {
     private val KEY_NOTIFICATION_MESSAGE = stringPreferencesKey("notification_message")
 
     /**
+     * Preference key for storing the boolean variable in order to know if we want to show our custom
+     * alarm activity when the App is running or not
+     */
+    private val KEY_SHOULD_SHOW_ALARM_ACTIVITY = booleanPreferencesKey("should_show_alarm_activity")
+
+    /**
      * Saves the provided [TriggerXConfig] to DataStore.
      * This includes the activity class name and optionally the notification title and message.
      *
@@ -70,6 +77,7 @@ internal object TriggerXPreferences {
             config.notificationMessage?.let {
                 prefs[KEY_NOTIFICATION_MESSAGE] = it
             }
+            prefs[KEY_SHOULD_SHOW_ALARM_ACTIVITY] = config.shouldShowAlarmActivityWhenAppIsActive
         }
     }
 
@@ -89,6 +97,7 @@ internal object TriggerXPreferences {
         val className = prefs[KEY_ACTIVITY_CLASS] ?: return null
         val title = prefs[KEY_NOTIFICATION_TITLE] ?: "Alarm" // Default title
         val message = prefs[KEY_NOTIFICATION_MESSAGE] ?: "Alarm is ringing" // Default message
+        val shouldShowAlarmActivity = prefs[KEY_SHOULD_SHOW_ALARM_ACTIVITY] ?: true
 
         return try {
             val clazz = Class.forName(className) as Class<out Activity>
@@ -96,6 +105,7 @@ internal object TriggerXPreferences {
                 activityClass = clazz
                 notificationTitle = title
                 notificationMessage = message
+                shouldShowAlarmActivityWhenAppIsActive = shouldShowAlarmActivity
             }
         } catch (e: Exception) {
             LoggerConfig.logger.e("Failed to load activity class from prefs", e)

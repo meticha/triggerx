@@ -57,8 +57,8 @@ class TriggerXAlarmScheduler {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             if (!alarmManager.canScheduleExactAlarms()) {
                 LoggerConfig.logger.e("Cannot schedule exact alarms. Permission not granted.")
-                // Optionally, redirect to settings or notify user.
-                // For now, returning false as the HomeScreen should handle permission request.
+                // Optionally, redirect to settings or notify the user.
+                // For now, returning false as the HomeScreen should handle the permission request.
                 return false
             }
         }
@@ -76,7 +76,7 @@ class TriggerXAlarmScheduler {
         )
         try {
             // Use setExactAndAllowWhileIdle for alarms that need to fire even in Doze mode.
-            // For AlarmClock behavior (shows in status bar), use AlarmManager.AlarmClockInfo
+            // For AlarmClock behavior (shown in the status bar), use AlarmManager.AlarmClockInfo
             alarmManager.setExactAndAllowWhileIdle(
                 AlarmManager.RTC_WAKEUP,
                 triggerAtMillis,

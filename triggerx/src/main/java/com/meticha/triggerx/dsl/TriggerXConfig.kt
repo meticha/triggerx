@@ -59,6 +59,13 @@ class TriggerXConfig internal constructor() {
     internal var notificationMessage: String? = null
 
     /**
+     * This is used to know if the user's App is running then weather they
+     * want to show the custom dialog or not. In this case, they will only
+     * see the notification
+     */
+    var shouldShowAlarmActivityWhenAppIsActive: Boolean = true
+
+    /**
      * The name for the notification channel used by the default foreground service notification.
      * Defaults to "TriggerX Alarms".
      *
