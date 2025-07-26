@@ -29,7 +29,7 @@ const FeatureList: FeatureItem[] = [
     ),
   },
   {
-    title: 'Handles Permissions So You That Don’t Have To',
+    title: 'Handles Permissions So That You Don’t Have To',
     icon: '🔐',
     description: (
       <>
