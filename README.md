@@ -20,10 +20,9 @@
 </a>
 </p>
 
-
-> **Note:** TriggerX is currently in Alpha. APIs may change.
-
 TriggerX is a modular, developer-friendly **alarm execution** library for Android.
+
+[See the full documentation](https://meticha.com/triggerx/docs)
 
 It simplifies scheduling exact alarms and showing user-facing UIs at a specific time, even when
 your app has been killed or without you managing foreground-service boilerplate, wake-locks, or
@@ -66,7 +65,7 @@ the system details.
 
 ```toml
 [versions]
-triggerx = "0.0.4"
+triggerx = "latest-version"
 
 [dependencies]
 triggerx = { module = "com.meticha:triggerx", version.ref = "triggerx" }
@@ -79,7 +78,7 @@ triggerx = { module = "com.meticha:triggerx", version.ref = "triggerx" }
 
 ```kotlin
 dependencies {
-    implementation("com.meticha:triggerx:0.0.4")
+    implementation("com.meticha:triggerx:latest-version")
 }
 ```
 
@@ -95,6 +94,8 @@ dependencies {
 
     <!-- Permissions for scheduling exact alarms -->
 <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+
+<uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
 ```
 
 ### 1. Initialize in your Application class
@@ -150,7 +151,7 @@ fun HomeScreen(
 ) {
     val context = LocalContext.current
     val permissionState = rememberAppPermissionState()
-
+    val coroutines = rememberCoroutineScope()
 
     Scaffold { paddingValues ->
         Column(
@@ -163,10 +164,12 @@ fun HomeScreen(
         ) {
             ElevatedButton(
                 onClick = {
-                    if (permissionState.allRequiredGranted()) {
-                        viewModel.scheduleOneMinuteAlarm(context)
-                    } else {
-                        permissionState.requestPermission()
+                    coroutines.launch {
+                        if (permissionState.allRequiredGranted()) {
+                            viewModel.scheduleOneMinuteAlarm(context)
+                        } else {
+                            permissionState.requestPermission()
+                        }
                     }
                 }
             ) {
@@ -268,6 +271,7 @@ fun HomeScreen(
 ) {
     val context = LocalContext.current
     val permissionState = rememberAppPermissionState()
+    val coroutines = rememberCoroutineScope()
 
 
     Scaffold { paddingValues ->
@@ -281,12 +285,14 @@ fun HomeScreen(
         ) {
             ElevatedButton(
                 onClick = {
-                    if (permissionState.allRequiredGranted()) {
-                        viewModel.scheduleOneMinuteAlarm(
-                            context
-                        )
-                    } else {
-                        permissionState.requestPermission()
+                    coroutines.launch {
+                        if (permissionState.allRequiredGranted()) {
+                            viewModel.scheduleOneMinuteAlarm(
+                                context
+                            )
+                        } else {
+                            permissionState.requestPermission()
+                        }
                     }
                 }
             ) {
@@ -301,7 +307,7 @@ Covered automatically:
 
 | Permission                     | Version |
 |--------------------------------|---------|
-| ⏰ Exact alarm                  | API 31+ |
+| ⏰ Exact alarm                 | API 31+ |
 | 🔋 Ignore battery optimisation | all     |
 | 🖼 Overlay (only if needed)    | all     |
 | 📢 Post-notification           | API 33+ |

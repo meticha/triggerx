@@ -13,7 +13,7 @@ Add this to your `build.gradle.kts`:
 
 ```kotlin
 dependencies {
-    implementation("com.meticha:triggerx:0.0.5")
+    implementation("com.meticha:triggerx:1.1.0")
 }
 ```
 
@@ -23,7 +23,7 @@ If you're using Version Catalogs:
 
 ```toml
 [versions]
-triggerx = "0.0.5"
+triggerx = "1.1.0"
 
 [libraries]
 triggerx = { module = "com.meticha:triggerx", version.ref = "triggerx" }
@@ -44,4 +44,6 @@ dependencies {
 
 <!-- Allows scheduling of exact alarms -->
 <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+
+<uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
 ```

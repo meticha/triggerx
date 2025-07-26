@@ -26,7 +26,7 @@ If applicable, add screenshots to help explain your problem.
 **Device (please complete the following information):**
  - Device: [e.g. Pixel 6]
  - OS: [e.g. Android 13]
- - TriggerX Library Version [e.g. 1.0.0]
+ - TriggerX Library Version [e.g. 1.1.0]
  - TriggerX Example App Version (if applicable) [e.g. 1.1]
 
 **Additional context**
