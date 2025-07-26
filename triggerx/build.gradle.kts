@@ -100,14 +100,14 @@ mavenPublishing {
     signAllPublications()
 
 
-    coordinates("com.meticha", "triggerx", "0.0.9")
+    coordinates("com.meticha", "triggerx", "1.0.0")
 
     pom {
         name = "triggerx"
         description =
             "A lightweight Android library for scheduling exact alarms with custom UIs. No foreground services or wake-lock hassle."
         inceptionYear = "2025"
-        version = "0.0.9"
+        version = "1.0.0"
         url = "https://github.com/meticha/triggerx.git"
         licenses {
             license {

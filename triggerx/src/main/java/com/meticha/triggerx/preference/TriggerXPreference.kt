@@ -19,6 +19,7 @@ import android.app.Activity
 import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
@@ -55,6 +56,18 @@ internal object TriggerXPreferences {
     private val KEY_NOTIFICATION_MESSAGE = stringPreferencesKey("notification_message")
 
     /**
+     * Preference key for storing whether to show alarm activity when device is active/unlocked.
+     */
+    private val KEY_SHOULD_SHOW_ALARM_ACTIVITY_WHEN_DEVICE_IS_ACTIVE =
+        booleanPreferencesKey("should_show_alarm_activity_when_device_is_active")
+
+    /**
+     * Preference key for storing whether to show alarm activity when app is in foreground.
+     */
+    private val KEY_SHOULD_SHOW_ALARM_ACTIVITY_WHEN_APP_IS_ACTIVE =
+        booleanPreferencesKey("should_show_alarm_activity_when_app_is_active")
+
+    /**
      * Saves the provided [TriggerXConfig] to DataStore.
      * This includes the activity class name and optionally the notification title and message.
      *
@@ -70,6 +83,9 @@ internal object TriggerXPreferences {
             config.notificationMessage?.let {
                 prefs[KEY_NOTIFICATION_MESSAGE] = it
             }
+            prefs[KEY_SHOULD_SHOW_ALARM_ACTIVITY_WHEN_DEVICE_IS_ACTIVE] =
+                config.shouldShowAlarmActivityWhenDeviceIsActive
+            prefs[KEY_SHOULD_SHOW_ALARM_ACTIVITY_WHEN_APP_IS_ACTIVE] = config.showAlarmActivityWhenAppIsActive
         }
     }
 
@@ -89,6 +105,8 @@ internal object TriggerXPreferences {
         val className = prefs[KEY_ACTIVITY_CLASS] ?: return null
         val title = prefs[KEY_NOTIFICATION_TITLE] ?: "Alarm" // Default title
         val message = prefs[KEY_NOTIFICATION_MESSAGE] ?: "Alarm is ringing" // Default message
+        val shouldShowAlarmActivity = prefs[KEY_SHOULD_SHOW_ALARM_ACTIVITY_WHEN_DEVICE_IS_ACTIVE] ?: true
+        val showAlarmActivityWhenInForeground = prefs[KEY_SHOULD_SHOW_ALARM_ACTIVITY_WHEN_APP_IS_ACTIVE] ?: true
 
         return try {
             val clazz = Class.forName(className) as Class<out Activity>
@@ -96,6 +114,8 @@ internal object TriggerXPreferences {
                 activityClass = clazz
                 notificationTitle = title
                 notificationMessage = message
+                shouldShowAlarmActivityWhenDeviceIsActive = shouldShowAlarmActivity
+                showAlarmActivityWhenAppIsActive = showAlarmActivityWhenInForeground
             }
         } catch (e: Exception) {
             LoggerConfig.logger.e("Failed to load activity class from prefs", e)

@@ -16,6 +16,7 @@
 package com.meticha.triggerx.services
 
 import android.app.Activity
+import android.app.ActivityManager
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -83,6 +84,7 @@ internal class TriggerXForegroundService : Service() {
      *
      * It performs the following steps:
      * - Builds and displays a foreground notification.
+     * - Checks user preferences for showing activity based on app foreground state and device active state
      * - Acquires a partial wake lock.
      * - Processes the incoming alarm intent:
      *     - Extracts alarm ID and type.
@@ -100,12 +102,24 @@ internal class TriggerXForegroundService : Service() {
      *         automatically restarted.
      */
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-
         val notification = buildNotification()
         startForeground(NOTIFICATION_ID, notification)
 
         // Acquire a wake lock to ensure the device doesn't sleep while processing the alarm
         val powerManager = getSystemService(PowerManager::class.java)
+        if (!TriggerX.showAlarmActivityWhenAppIsActive() && isAppInForeground()) {
+            stopForeground(STOP_FOREGROUND_REMOVE)
+            stopSelf()
+            return START_NOT_STICKY
+        }
+
+        if (!TriggerX.showAlarmActivityWhenDeviceIsActive() && powerManager.isInteractive) {
+            stopForeground(STOP_FOREGROUND_REMOVE)
+            stopSelf()
+            return START_NOT_STICKY
+        }
+
+
         val wakeLock = powerManager.newWakeLock(
             PowerManager.PARTIAL_WAKE_LOCK,
             "triggerx::AlarmWakeLock"
@@ -184,7 +198,7 @@ internal class TriggerXForegroundService : Service() {
         ).apply {
             description = "Notifications for scheduling alarms"
         }
-        val nm = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val nm = getSystemService(NotificationManager::class.java)
         nm.createNotificationChannel(channel)
     }
 
@@ -216,4 +230,22 @@ internal class TriggerXForegroundService : Service() {
             ?: TriggerXPreferences.load(context)?.activityClass
             ?: DefaultTriggerActivity::class.java
     }
+}
+
+fun Context.isAppInForeground(): Boolean {
+    val activityManager = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+    val memoryInfo = ActivityManager.RunningAppProcessInfo()
+    ActivityManager.getMyMemoryState(memoryInfo)
+    return memoryInfo.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND
+//    val application = applicationContext
+//    val activityManager = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+//    val runningProcessList = activityManager.runningAppProcesses
+//
+//    if (runningProcessList != null) {
+//        val myApp = runningProcessList.find { it.processName == application.packageName }
+//        ActivityManager.getMyMemoryState(myApp)
+//        return myApp?.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND
+//    }
+//
+//    return false
 }
