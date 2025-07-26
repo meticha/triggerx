@@ -15,6 +15,7 @@ Here’s how to do it:
 fun HomeScreen() {
     val context = LocalContext.current
     val permissionState = rememberAppPermissionState()
+    val coroutineScope = rememberCoroutineScope()
 
     Scaffold { paddingValues ->
         Column(
@@ -27,33 +28,35 @@ fun HomeScreen() {
         ) {
             ElevatedButton(
                 onClick = {
-                    if (permissionState.allRequiredGranted()) {
-                        val triggerTime = Calendar.getInstance().apply {
-                            add(Calendar.MINUTE, 1) // Triggers after 1 minute
-                        }.timeInMillis
-
-                        val scheduled = TriggerXAlarmScheduler().scheduleAlarm(
-                            context = context,
-                            triggerAtMillis = triggerTime,
-                            type = "MEETING",
-                            alarmId = 1
-                        )
-
-                        if (scheduled) {
-                            Toast.makeText(
-                                context,
-                                "Alarm scheduled successfully. App can now be closed 🔔",
-                                Toast.LENGTH_SHORT
-                            ).show()
+                    coroutineScope.launch{
+                        if (permissionState.allRequiredGranted()) {
+                            val triggerTime = Calendar.getInstance().apply {
+                                add(Calendar.MINUTE, 1) // Triggers after 1 minute
+                            }.timeInMillis
+    
+                            val scheduled = TriggerXAlarmScheduler().scheduleAlarm(
+                                context = context,
+                                triggerAtMillis = triggerTime,
+                                type = "MEETING",
+                                alarmId = 1
+                            )
+    
+                            if (scheduled) {
+                                Toast.makeText(
+                                    context,
+                                    "Alarm scheduled successfully. App can now be closed 🔔",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            } else {
+                                Toast.makeText(
+                                    context,
+                                    "Failed to schedule alarm. Please try again.",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
                         } else {
-                            Toast.makeText(
-                                context,
-                                "Failed to schedule alarm. Please try again.",
-                                Toast.LENGTH_SHORT
-                            ).show()
+                            permissionState.requestPermission()
                         }
-                    } else {
-                        permissionState.requestPermission()
                     }
                 }
             ) {

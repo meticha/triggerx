@@ -100,24 +100,24 @@ fun HomeScreen() {
 
     ElevatedButton(
         onClick = {
-        if (permissionState.allRequiredGranted()) {
-            val db = AppDatabase.getInstance(context)
-            scope.launch {
-                db.taskDao().insert(Task(1, "Meeting", "Discuss the roadmap"))
-
-                val triggerTime = Calendar.getInstance().apply {
-                    add(Calendar.MINUTE, 1)
-                }.timeInMillis
-
-                alarmScheduler.scheduleAlarm(
-                    context = context,
-                    triggerAtMillis = triggerTime,
-                    type = "TASK",
-                    alarmId = 1
-                )
-            }
-        } else {
-            permissionState.requestPermission()
+            scope.launch { 
+                if (permissionState.allRequiredGranted()) { 
+                    val db = AppDatabase.getInstance(context)
+                    db.taskDao().insert(Task(1, "Meeting", "Discuss the roadmap"))
+        
+                    val triggerTime = Calendar.getInstance().apply {
+                        add(Calendar.MINUTE, 1)
+                    }.timeInMillis
+        
+                    alarmScheduler.scheduleAlarm(
+                        context = context,
+                        triggerAtMillis = triggerTime,
+                        type = "TASK",
+                        alarmId = 1
+                    )
+            } else {
+                permissionState.requestPermission() 
+            } 
         }
     }) {
         Text("Schedule Dynamic Alarm")

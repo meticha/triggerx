@@ -33,7 +33,6 @@ class TriggerXApplication : Application() {
                 message = "Your alarm is ringing!",
                 channelName = "My Awesome App Notifications"
             )
-            showAlarmActivityWhenAppIsActive = false
             activityClass = AppAlarmActivity::class.java
             alarmDataProvider = object : TriggerXDataProvider {
                 override suspend fun provideData(alarmId: Int, alarmType: String): Bundle {

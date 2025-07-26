@@ -15,6 +15,7 @@ Here’s how to request permissions and schedule an alarm:
 fun HomeScreen() {
     val context = LocalContext.current
     val permissionState = rememberAppPermissionState()
+    val coroutineScope = rememberCoroutineScope()
 
     Scaffold { paddingValues ->
         Column(
@@ -27,10 +28,12 @@ fun HomeScreen() {
         ) {
             ElevatedButton(
                 onClick = {
-                    if (permissionState.allRequiredGranted()) {
-                        // do stuff
-                    } else {
-                        permissionState.requestPermission()
+                    coroutineScope.launch{
+                        if (permissionState.allRequiredGranted()) {
+                            // do stuff
+                        } else {
+                            permissionState.requestPermission()
+                        }
                     }
                 }
             ) {
