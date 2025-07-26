@@ -72,6 +72,9 @@ object TriggerX {
     const val DEFAULT_CHANNEL_ID = "triggerx_channel"
 
     internal fun showAlarmActivityWhenAppIsActive(): Boolean =
+        config?.showAlarmActivityWhenAppIsActive ?: true
+
+    internal fun showAlarmActivityWhenDeviceIsActive(): Boolean =
         config?.shouldShowAlarmActivityWhenDeviceIsActive ?: true
 
     internal fun getNotificationTitle(): String = config?.notificationTitle ?: "Alarm"

@@ -108,13 +108,17 @@ internal class TriggerXForegroundService : Service() {
         // Acquire a wake lock to ensure the device doesn't sleep while processing the alarm
         val powerManager = getSystemService(PowerManager::class.java)
         if (!TriggerX.showAlarmActivityWhenAppIsActive() && powerManager.isInteractive) {
+            stopForeground(STOP_FOREGROUND_REMOVE)
             stopSelf()
             return START_NOT_STICKY
         }
-        if (!TriggerX.showAlarmActivityWhenAppIsActive() && isAppInForeground()) {
+
+        if (!TriggerX.showAlarmActivityWhenDeviceIsActive() && isAppInForeground()) {
+            stopForeground(STOP_FOREGROUND_REMOVE)
             stopSelf()
             return START_NOT_STICKY
         }
+
 
         val wakeLock = powerManager.newWakeLock(
             PowerManager.PARTIAL_WAKE_LOCK,
@@ -230,8 +234,8 @@ internal class TriggerXForegroundService : Service() {
 
 fun Context.isAppInForeground(): Boolean {
 
-    val application = this.applicationContext
-    val activityManager = this.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+    val application = applicationContext
+    val activityManager = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
     val runningProcessList = activityManager.runningAppProcesses
 
     if (runningProcessList != null) {
