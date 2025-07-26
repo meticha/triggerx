@@ -71,9 +71,18 @@ object TriggerX {
 
     const val DEFAULT_CHANNEL_ID = "triggerx_channel"
 
+    /**
+     * Returns whether alarm activity should be shown when app is in the foreground.
+     * Defaults to true if not configured.
+     */
     internal fun showAlarmActivityWhenAppIsActive(): Boolean =
         config?.showAlarmActivityWhenAppIsActive ?: true
 
+
+    /**
+     * Returns whether alarm activity should be shown when device is active/unlocked.
+     * Defaults to true if not configured.
+     */
     internal fun showAlarmActivityWhenDeviceIsActive(): Boolean =
         config?.shouldShowAlarmActivityWhenDeviceIsActive ?: true
 

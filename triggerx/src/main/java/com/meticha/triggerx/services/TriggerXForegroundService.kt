@@ -84,7 +84,7 @@ internal class TriggerXForegroundService : Service() {
      *
      * It performs the following steps:
      * - Builds and displays a foreground notification.
-     * - Checks if the user wants to show the activity if their App is open or not
+     * - Checks user preferences for showing activity based on app foreground state and device active state
      * - Acquires a partial wake lock.
      * - Processes the incoming alarm intent:
      *     - Extracts alarm ID and type.
@@ -107,13 +107,13 @@ internal class TriggerXForegroundService : Service() {
 
         // Acquire a wake lock to ensure the device doesn't sleep while processing the alarm
         val powerManager = getSystemService(PowerManager::class.java)
-        if (!TriggerX.showAlarmActivityWhenAppIsActive() && powerManager.isInteractive) {
+        if (!TriggerX.showAlarmActivityWhenAppIsActive() && isAppInForeground()) {
             stopForeground(STOP_FOREGROUND_REMOVE)
             stopSelf()
             return START_NOT_STICKY
         }
 
-        if (!TriggerX.showAlarmActivityWhenDeviceIsActive() && isAppInForeground()) {
+        if (!TriggerX.showAlarmActivityWhenDeviceIsActive() && powerManager.isInteractive) {
             stopForeground(STOP_FOREGROUND_REMOVE)
             stopSelf()
             return START_NOT_STICKY
@@ -233,16 +233,19 @@ internal class TriggerXForegroundService : Service() {
 }
 
 fun Context.isAppInForeground(): Boolean {
-
-    val application = applicationContext
     val activityManager = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
-    val runningProcessList = activityManager.runningAppProcesses
-
-    if (runningProcessList != null) {
-        val myApp = runningProcessList.find { it.processName == application.packageName }
-        ActivityManager.getMyMemoryState(myApp)
-        return myApp?.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND
-    }
-
-    return false
+    val memoryInfo = ActivityManager.RunningAppProcessInfo()
+    ActivityManager.getMyMemoryState(memoryInfo)
+    return memoryInfo.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND
+//    val application = applicationContext
+//    val activityManager = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+//    val runningProcessList = activityManager.runningAppProcesses
+//
+//    if (runningProcessList != null) {
+//        val myApp = runningProcessList.find { it.processName == application.packageName }
+//        ActivityManager.getMyMemoryState(myApp)
+//        return myApp?.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND
+//    }
+//
+//    return false
 }

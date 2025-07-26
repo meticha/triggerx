@@ -56,17 +56,16 @@ internal object TriggerXPreferences {
     private val KEY_NOTIFICATION_MESSAGE = stringPreferencesKey("notification_message")
 
     /**
-     * Preference key for storing the boolean variable in order to know if we want to show our custom
-     * alarm activity when the Device is unlocked or not
+     * Preference key for storing whether to show alarm activity when device is active/unlocked.
      */
-    private val KEY_SHOULD_SHOW_ALARM_ACTIVITY = booleanPreferencesKey("should_show_alarm_activity")
+    private val KEY_SHOULD_SHOW_ALARM_ACTIVITY_WHEN_DEVICE_IS_ACTIVE =
+        booleanPreferencesKey("should_show_alarm_activity_when_device_is_active")
 
     /**
-     * Preference key for storing the boolean variable in order to know if we want to show our custom
-     * alarm activity when the App is running in the foreground state
+     * Preference key for storing whether to show alarm activity when app is in foreground.
      */
-    private val KEY_SHOW_ALARM_ACTIVITY_IN_FOREGROUND_STATE =
-        booleanPreferencesKey("should_show_alarm_activity_in_foreground")
+    private val KEY_SHOULD_SHOW_ALARM_ACTIVITY_WHEN_APP_IS_ACTIVE =
+        booleanPreferencesKey("should_show_alarm_activity_when_app_is_active")
 
     /**
      * Saves the provided [TriggerXConfig] to DataStore.
@@ -84,8 +83,9 @@ internal object TriggerXPreferences {
             config.notificationMessage?.let {
                 prefs[KEY_NOTIFICATION_MESSAGE] = it
             }
-            prefs[KEY_SHOULD_SHOW_ALARM_ACTIVITY] = config.shouldShowAlarmActivityWhenDeviceIsActive
-            prefs[KEY_SHOW_ALARM_ACTIVITY_IN_FOREGROUND_STATE] = config.showAlarmActivityWhenAppIsActive
+            prefs[KEY_SHOULD_SHOW_ALARM_ACTIVITY_WHEN_DEVICE_IS_ACTIVE] =
+                config.shouldShowAlarmActivityWhenDeviceIsActive
+            prefs[KEY_SHOULD_SHOW_ALARM_ACTIVITY_WHEN_APP_IS_ACTIVE] = config.showAlarmActivityWhenAppIsActive
         }
     }
 
@@ -105,8 +105,8 @@ internal object TriggerXPreferences {
         val className = prefs[KEY_ACTIVITY_CLASS] ?: return null
         val title = prefs[KEY_NOTIFICATION_TITLE] ?: "Alarm" // Default title
         val message = prefs[KEY_NOTIFICATION_MESSAGE] ?: "Alarm is ringing" // Default message
-        val shouldShowAlarmActivity = prefs[KEY_SHOULD_SHOW_ALARM_ACTIVITY] ?: true
-        val showAlarmActivityWhenInForeground = prefs[KEY_SHOW_ALARM_ACTIVITY_IN_FOREGROUND_STATE] ?: true
+        val shouldShowAlarmActivity = prefs[KEY_SHOULD_SHOW_ALARM_ACTIVITY_WHEN_DEVICE_IS_ACTIVE] ?: true
+        val showAlarmActivityWhenInForeground = prefs[KEY_SHOULD_SHOW_ALARM_ACTIVITY_WHEN_APP_IS_ACTIVE] ?: true
 
         return try {
             val clazz = Class.forName(className) as Class<out Activity>

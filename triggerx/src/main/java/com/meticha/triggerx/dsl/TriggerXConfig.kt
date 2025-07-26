@@ -60,14 +60,14 @@ class TriggerXConfig internal constructor() {
     internal var notificationMessage: String? = null
 
     /**
-     * This is used to know if the user's device is in the unlocked state, then weather they
-     * want to show the custom alarm dialog or not.
+     * Controls whether the custom alarm activity should be shown when the device is active/unlocked.
+     * When false, the alarm activity will not be shown if the device is currently interactive.
      */
     var shouldShowAlarmActivityWhenDeviceIsActive: Boolean = true
 
     /**
-     * This is used to know that if the user's App is running (in the foreground state),
-     * then weather they want to show the custom dialog or not.
+     * Controls whether the custom alarm activity should be shown when the app is in the foreground.
+     * When false, the alarm activity will not be shown if the app is currently visible to the user.
      */
     var showAlarmActivityWhenAppIsActive: Boolean = true
 
