@@ -57,9 +57,16 @@ internal object TriggerXPreferences {
 
     /**
      * Preference key for storing the boolean variable in order to know if we want to show our custom
-     * alarm activity when the App is running or not
+     * alarm activity when the Device is unlocked or not
      */
     private val KEY_SHOULD_SHOW_ALARM_ACTIVITY = booleanPreferencesKey("should_show_alarm_activity")
+
+    /**
+     * Preference key for storing the boolean variable in order to know if we want to show our custom
+     * alarm activity when the App is running in the foreground state
+     */
+    private val KEY_SHOW_ALARM_ACTIVITY_IN_FOREGROUND_STATE =
+        booleanPreferencesKey("should_show_alarm_activity_in_foreground")
 
     /**
      * Saves the provided [TriggerXConfig] to DataStore.
@@ -77,7 +84,8 @@ internal object TriggerXPreferences {
             config.notificationMessage?.let {
                 prefs[KEY_NOTIFICATION_MESSAGE] = it
             }
-            prefs[KEY_SHOULD_SHOW_ALARM_ACTIVITY] = config.shouldShowAlarmActivityWhenAppIsActive
+            prefs[KEY_SHOULD_SHOW_ALARM_ACTIVITY] = config.shouldShowAlarmActivityWhenDeviceIsActive
+            prefs[KEY_SHOW_ALARM_ACTIVITY_IN_FOREGROUND_STATE] = config.showAlarmActivityWhenAppIsActive
         }
     }
 
@@ -98,6 +106,7 @@ internal object TriggerXPreferences {
         val title = prefs[KEY_NOTIFICATION_TITLE] ?: "Alarm" // Default title
         val message = prefs[KEY_NOTIFICATION_MESSAGE] ?: "Alarm is ringing" // Default message
         val shouldShowAlarmActivity = prefs[KEY_SHOULD_SHOW_ALARM_ACTIVITY] ?: true
+        val showAlarmActivityWhenInForeground = prefs[KEY_SHOW_ALARM_ACTIVITY_IN_FOREGROUND_STATE] ?: true
 
         return try {
             val clazz = Class.forName(className) as Class<out Activity>
@@ -105,7 +114,8 @@ internal object TriggerXPreferences {
                 activityClass = clazz
                 notificationTitle = title
                 notificationMessage = message
-                shouldShowAlarmActivityWhenAppIsActive = shouldShowAlarmActivity
+                shouldShowAlarmActivityWhenDeviceIsActive = shouldShowAlarmActivity
+                showAlarmActivityWhenAppIsActive = showAlarmActivityWhenInForeground
             }
         } catch (e: Exception) {
             LoggerConfig.logger.e("Failed to load activity class from prefs", e)

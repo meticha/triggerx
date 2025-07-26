@@ -36,6 +36,7 @@ import kotlin.jvm.java
  *         message = "Tap to open",
  *         channelName = "Alarm Notifications"
  *     )
+ *     shouldShowAlarmActivityWhenDeviceIsActive = true
  *     alarmDataProvider = MyDataProvider()
  *     logging(MyCustomLogger())
  * }
@@ -59,11 +60,16 @@ class TriggerXConfig internal constructor() {
     internal var notificationMessage: String? = null
 
     /**
-     * This is used to know if the user's App is running then weather they
-     * want to show the custom dialog or not. In this case, they will only
-     * see the notification
+     * This is used to know if the user's device is in the unlocked state, then weather they
+     * want to show the custom alarm dialog or not.
      */
-    var shouldShowAlarmActivityWhenAppIsActive: Boolean = true
+    var shouldShowAlarmActivityWhenDeviceIsActive: Boolean = true
+
+    /**
+     * This is used to know that if the user's App is running (in the foreground state),
+     * then weather they want to show the custom dialog or not.
+     */
+    var showAlarmActivityWhenAppIsActive: Boolean = true
 
     /**
      * The name for the notification channel used by the default foreground service notification.

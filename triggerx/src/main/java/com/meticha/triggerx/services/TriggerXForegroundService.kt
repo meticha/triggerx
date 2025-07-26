@@ -26,7 +26,6 @@ import android.content.Intent
 import android.os.IBinder
 import android.os.PowerManager
 import androidx.core.app.NotificationCompat
-import androidx.lifecycle.Lifecycle
 import com.meticha.triggerx.DefaultTriggerActivity
 import com.meticha.triggerx.dsl.TriggerX
 import com.meticha.triggerx.logger.LoggerConfig
@@ -108,7 +107,11 @@ internal class TriggerXForegroundService : Service() {
 
         // Acquire a wake lock to ensure the device doesn't sleep while processing the alarm
         val powerManager = getSystemService(PowerManager::class.java)
-        if (!TriggerX.shouldShowAlarmActivityWhenAppIsActive() && powerManager.isInteractive) {
+        if (!TriggerX.showAlarmActivityWhenAppIsActive() && powerManager.isInteractive) {
+            stopSelf()
+            return START_NOT_STICKY
+        }
+        if (!TriggerX.showAlarmActivityWhenAppIsActive() && isAppInForeground()) {
             stopSelf()
             return START_NOT_STICKY
         }
@@ -191,7 +194,7 @@ internal class TriggerXForegroundService : Service() {
         ).apply {
             description = "Notifications for scheduling alarms"
         }
-        val nm = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val nm = getSystemService(NotificationManager::class.java)
         nm.createNotificationChannel(channel)
     }
 
@@ -223,4 +226,19 @@ internal class TriggerXForegroundService : Service() {
             ?: TriggerXPreferences.load(context)?.activityClass
             ?: DefaultTriggerActivity::class.java
     }
+}
+
+fun Context.isAppInForeground(): Boolean {
+
+    val application = this.applicationContext
+    val activityManager = this.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+    val runningProcessList = activityManager.runningAppProcesses
+
+    if (runningProcessList != null) {
+        val myApp = runningProcessList.find { it.processName == application.packageName }
+        ActivityManager.getMyMemoryState(myApp)
+        return myApp?.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND
+    }
+
+    return false
 }
